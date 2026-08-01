@@ -1,0 +1,52 @@
+{% extends 'app/base.html' %}
+
+{% block title %}{{ post.name }}{% endblock %}
+
+{% block content %}
+
+    <h2>{{ post.name }}</h2>
+
+    {% if post.generation_status == "completed" %}
+
+        {% with content=post.generated_content.0.output %}
+
+            {% if content.facebook %}
+                <h3>Facebook</h3>
+                <p>{{ content.facebook.caption }}</p>
+            {% endif %}
+
+            {% if content.instagram %}
+                <h3>Instagram</h3>
+                <p>{{ content.instagram.caption }}</p>
+            {% endif %}
+
+            {% if content.linkedin %}
+                <h3>LinkedIn</h3>
+                <p>{{ content.linkedin.caption }}</p>
+            {% endif %}
+
+            {% if content.tiktok %}
+                <h3>TikTok</h3>
+                <p>{{ content.tiktok.caption }}</p>
+
+                {% if content.tiktok.on_screen_hook %}
+                    <strong>On-screen hook:</strong>
+                    <p>{{ content.tiktok.on_screen_hook }}</p>
+                {% endif %}
+            {% endif %}
+
+        {% endwith %}
+
+    {% elif post.generation_status == "failed" %}
+
+        <div class="alert alert-danger">
+            {{ post.generation_error }}
+        </div>
+
+    {% else %}
+
+        <p>Content has not been generated yet.</p>
+
+    {% endif %}
+
+{% endblock %}

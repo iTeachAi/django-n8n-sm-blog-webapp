@@ -1,0 +1,161 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Basketball Intelligence Lab{% endblock %}
+
+{% block nav %}
+    <div class="d-flex align-items-center gap-2">
+        <a
+            href="{% url 'blog:create_topic' %}"
+            class="btn dashboard-btn dashboard-btn-primary"
+        >
+            <i class="bi bi-plus-lg"></i>
+            New Investigation
+        </a>
+
+        <a
+            href="{% url 'blog:blog_list' %}"
+            class="btn dashboard-btn dashboard-btn-secondary"
+        >
+            <i class="bi bi-collection"></i>
+            Library
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+<main class="lab-dashboard">
+    <div class="container-fluid dashboard-shell px-3 px-lg-4 py-3 py-lg-4">
+
+        <!-- Compact top bar -->
+        <header class="dashboard-header lab-panel mb-3">
+            <div class="row align-items-center g-3">
+
+                <div class="col-xl-7">
+                    <div class="d-flex align-items-start gap-3">
+
+                        <div class="dashboard-brand-icon">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+
+                        <div>
+                            <p class="dashboard-kicker">
+                                Basketball Intelligence Lab
+                            </p>
+
+                            <h1 class="dashboard-title">
+                                Investigation Dashboard
+                            </h1>
+
+                            <p class="dashboard-description">
+                                Turn basketball principles into focused topics,
+                                complete lessons, and published knowledge.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-xl-5">
+                    <div class="d-flex flex-column flex-sm-row justify-content-xl-end gap-2">
+
+                        <a
+                            href="{% url 'blog:create_topic' %}"
+                            class="dashboard-action dashboard-action-primary"
+                        >
+                            <i class="bi bi-plus-circle"></i>
+                            Start Investigation
+                        </a>
+
+                        <a
+                            href="{% url 'blog:blog_list' %}"
+                            class="dashboard-action dashboard-action-secondary"
+                        >
+                            <i class="bi bi-journals"></i>
+                            View Blogs
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+        </header>
+
+        <!-- Compact metrics -->
+        <section class="row g-3 mb-3">
+
+            {% include "blog/partials/_metric_card.html" with icon="bi-lightbulb" value=topics|length label="Investigations" accent="copper" %}
+
+            {% include "blog/partials/_metric_card.html" with icon="bi-question-circle" value="05" label="Required Questions" accent="teal" %}
+
+            {% include "blog/partials/_metric_card.html" with icon="bi-check2-circle" value="100%" label="Completion Goal" accent="green" %}
+
+            {% include "blog/partials/_metric_card.html" with icon="bi-bullseye" value="01" label="Final Message" accent="amber" %}
+
+        </section>
+
+        <!-- Main workspace -->
+        <section class="row g-3">
+
+            <!-- Investigation queue -->
+            <div class="col-xl-8">
+
+                <div class="lab-panel dashboard-section">
+
+                    <div class="dashboard-section-header">
+                        <div>
+                            <p class="section-kicker">
+                                Active Research
+                            </p>
+
+                            <h2 class="section-title">
+                                Investigation Queue
+                            </h2>
+                        </div>
+
+                        {% if topics %}
+                            <a
+                                href="{% url 'blog:create_topic' %}"
+                                class="compact-link-button"
+                            >
+                                <i class="bi bi-plus-lg"></i>
+                                Add
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    {% if topics %}
+
+                        <div class="investigation-list">
+
+                            {% for topic in topics %}
+
+                                {% include "blog/partials/_topic_card.html" with topic=topic number=forloop.counter %}
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% else %}
+
+                        {% include "blog/partials/_empty_state.html" %}
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            <!-- Workflow sidebar -->
+            <div class="col-xl-4">
+
+                {% include "blog/partials/_workflow.html" %}
+
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+{% endblock %}

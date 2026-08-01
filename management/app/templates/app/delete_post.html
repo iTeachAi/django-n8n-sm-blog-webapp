@@ -1,0 +1,15 @@
+{% extends 'app/base.html' %}
+
+{% block title %} {% endblock %}
+
+{% block content %}
+    <p>Are you sure you want to delete this game.</p>
+    <h4>Game Name: {{game.name}}</h4>
+    <img src="{{ game.statsheet.url }}" alt="">
+    <form method="post">
+        {% csrf_token %}
+        {{form.as_p}}
+        <button type="submit">Delete Game</button>
+    </form>
+
+{% endblock %}

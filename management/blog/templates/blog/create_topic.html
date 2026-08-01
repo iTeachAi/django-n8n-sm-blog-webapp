@@ -1,0 +1,682 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Create Topics{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --studio-bg: #f4f6f8;
+        --studio-surface: rgba(255, 255, 255, 0.92);
+        --studio-surface-soft: #eef1f5;
+        --studio-border: rgba(20, 27, 38, 0.09);
+        --studio-border-strong: rgba(20, 27, 38, 0.16);
+
+        --studio-ink: #10141b;
+        --studio-ink-soft: #343b47;
+        --studio-muted: #747c88;
+
+        --studio-blue: #376cff;
+        --studio-blue-soft: rgba(55, 108, 255, 0.09);
+        --studio-lime: #c7ff3e;
+        --studio-lime-dark: #96c81e;
+
+        --studio-success: #14855f;
+        --studio-shadow:
+            0 24px 70px rgba(21, 29, 42, 0.1),
+            0 8px 20px rgba(21, 29, 42, 0.05);
+    }
+
+    body {
+        background: var(--studio-bg);
+    }
+
+    .create-topic-page {
+        position: relative;
+        min-height: 100vh;
+        overflow: hidden;
+        color: var(--studio-ink);
+        background:
+            radial-gradient(
+                circle at 8% 8%,
+                rgba(255, 255, 255, 0.96),
+                transparent 24rem
+            ),
+            radial-gradient(
+                circle at 92% 14%,
+                rgba(55, 108, 255, 0.09),
+                transparent 28rem
+            ),
+            radial-gradient(
+                circle at 75% 88%,
+                rgba(199, 255, 62, 0.13),
+                transparent 26rem
+            ),
+            linear-gradient(
+                145deg,
+                #f9fafb 0%,
+                #eef1f5 48%,
+                #f7f8fa 100%
+            );
+    }
+
+    .create-topic-page::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.4;
+        background-image:
+            linear-gradient(
+                rgba(16, 20, 27, 0.025) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgba(16, 20, 27, 0.025) 1px,
+                transparent 1px
+            );
+        background-size: 58px 58px;
+    }
+
+    .page-shell {
+        position: relative;
+        z-index: 1;
+    }
+
+    .chrome-panel {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.92);
+        border-radius: 1.7rem;
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255, 255, 255, 0.97),
+                rgba(241, 244, 247, 0.88) 48%,
+                rgba(223, 228, 234, 0.76)
+            );
+        box-shadow:
+            var(--studio-shadow),
+            inset 0 1px 0 #ffffff,
+            inset 0 -1px 0 rgba(28, 35, 46, 0.05);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+    }
+
+    .chrome-panel::before {
+        content: "";
+        position: absolute;
+        top: -80%;
+        left: -24%;
+        width: 34%;
+        height: 260%;
+        pointer-events: none;
+        transform: rotate(20deg);
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.92),
+                transparent
+            );
+        opacity: 0.55;
+    }
+
+    .page-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .page-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.85rem;
+        color: var(--studio-blue);
+        font-size: 0.76rem;
+        font-weight: 850;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+    }
+
+    .page-title {
+        max-width: 780px;
+        margin-bottom: 0.85rem;
+        color: var(--studio-ink);
+        font-size: clamp(2.4rem, 6vw, 4.6rem);
+        font-weight: 850;
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+    }
+
+    .page-description {
+        max-width: 700px;
+        margin: 0;
+        color: var(--studio-muted);
+        font-size: 1rem;
+        line-height: 1.75;
+    }
+
+    .step-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.6rem 0.9rem;
+        border: 1px solid rgba(55, 108, 255, 0.14);
+        border-radius: 999px;
+        color: var(--studio-blue);
+        background: var(--studio-blue-soft);
+        font-size: 0.76rem;
+        font-weight: 800;
+    }
+
+    .step-indicator span {
+        display: grid;
+        width: 1.75rem;
+        height: 1.75rem;
+        place-items: center;
+        border-radius: 50%;
+        color: #ffffff;
+        background: var(--studio-blue);
+        font-size: 0.72rem;
+        box-shadow: 0 6px 14px rgba(55, 108, 255, 0.24);
+    }
+
+    .form-panel {
+        padding: clamp(1.3rem, 4vw, 2.4rem);
+    }
+
+    .form-panel-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.6rem;
+        padding-bottom: 1.2rem;
+        border-bottom: 1px solid rgba(20, 27, 38, 0.08);
+    }
+
+    .form-panel-title {
+        margin-bottom: 0.35rem;
+        color: var(--studio-ink);
+        font-size: 1.35rem;
+        font-weight: 850;
+        letter-spacing: -0.025em;
+    }
+
+    .form-panel-copy {
+        margin: 0;
+        color: var(--studio-muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .form-icon {
+        display: grid;
+        flex: 0 0 auto;
+        width: 3.1rem;
+        height: 3.1rem;
+        place-items: center;
+        border: 1px solid rgba(55, 108, 255, 0.14);
+        border-radius: 1rem;
+        color: var(--studio-blue);
+        background:
+            radial-gradient(
+                circle at 35% 25%,
+                #ffffff,
+                #e4eaff 55%,
+                #b9c9ff
+            );
+        box-shadow:
+            0 10px 24px rgba(55, 108, 255, 0.13),
+            inset 0 1px 0 #ffffff;
+        font-size: 1.15rem;
+    }
+
+    .topic-form p {
+        margin-bottom: 1.25rem;
+    }
+
+    .topic-form label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--studio-ink-soft);
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+    }
+
+    .topic-form input,
+    .topic-form textarea,
+    .topic-form select {
+        width: 100%;
+        border: 1px solid rgba(20, 27, 38, 0.11);
+        border-radius: 1rem;
+        padding: 0.9rem 1rem;
+        color: var(--studio-ink);
+        background:
+            linear-gradient(
+                145deg,
+                #ffffff,
+                #f1f3f6
+            );
+        box-shadow:
+            inset 0 1px 2px rgba(17, 24, 39, 0.04),
+            0 8px 18px rgba(21, 29, 42, 0.04);
+        font-size: 0.95rem;
+        transition:
+            border-color 180ms ease,
+            box-shadow 180ms ease,
+            background 180ms ease,
+            transform 180ms ease;
+    }
+
+    .topic-form textarea {
+        min-height: 220px;
+        resize: vertical;
+        line-height: 1.65;
+    }
+
+    .topic-form input:focus,
+    .topic-form textarea:focus,
+    .topic-form select:focus {
+        outline: none;
+        border-color: rgba(55, 108, 255, 0.5);
+        background: #ffffff;
+        box-shadow:
+            0 0 0 4px rgba(55, 108, 255, 0.1),
+            0 12px 26px rgba(55, 108, 255, 0.08);
+        transform: translateY(-1px);
+    }
+
+    .topic-form .helptext {
+        display: block;
+        margin-top: 0.45rem;
+        color: var(--studio-muted);
+        font-size: 0.78rem;
+        line-height: 1.55;
+    }
+
+    .topic-form ul.errorlist {
+        margin: 0 0 0.65rem;
+        padding: 0;
+        list-style: none;
+    }
+
+    .topic-form ul.errorlist li {
+        padding: 0.65rem 0.8rem;
+        border: 1px solid rgba(217, 64, 82, 0.18);
+        border-radius: 0.8rem;
+        color: #b72d3f;
+        background: rgba(217, 64, 82, 0.07);
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 1.6rem;
+        padding-top: 1.2rem;
+        border-top: 1px solid rgba(20, 27, 38, 0.08);
+    }
+
+    .form-note {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+        color: var(--studio-muted);
+        font-size: 0.8rem;
+    }
+
+    .form-note i {
+        color: var(--studio-success);
+    }
+
+    .submit-button {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.55rem;
+        min-height: 50px;
+        overflow: hidden;
+        border: 1px solid rgba(151, 201, 30, 0.5);
+        border-radius: 999px;
+        padding: 0.85rem 1.35rem;
+        color: #111508;
+        background:
+            linear-gradient(
+                135deg,
+                #efffc7 0%,
+                var(--studio-lime) 45%,
+                #a8d927 100%
+            );
+        box-shadow:
+            0 14px 34px rgba(151, 201, 30, 0.24),
+            inset 0 1px 0 rgba(255, 255, 255, 0.88);
+        font-size: 0.9rem;
+        font-weight: 850;
+        transition:
+            transform 200ms ease,
+            box-shadow 200ms ease;
+    }
+
+    .submit-button::after {
+        content: "";
+        position: absolute;
+        top: -70%;
+        left: -45%;
+        width: 24%;
+        height: 240%;
+        transform: rotate(18deg);
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.9),
+                transparent
+            );
+        transition: left 520ms ease;
+    }
+
+    .submit-button:hover {
+        transform: translateY(-3px);
+        box-shadow:
+            0 18px 42px rgba(151, 201, 30, 0.31),
+            inset 0 1px 0 #ffffff;
+    }
+
+    .submit-button:hover::after {
+        left: 125%;
+    }
+
+    .guidance-panel {
+        height: 100%;
+        padding: 1.35rem;
+    }
+
+    .guidance-kicker {
+        margin-bottom: 0.45rem;
+        color: var(--studio-blue);
+        font-size: 0.74rem;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .guidance-title {
+        margin-bottom: 1.15rem;
+        color: var(--studio-ink);
+        font-size: 1.2rem;
+        font-weight: 850;
+    }
+
+    .guidance-item {
+        display: flex;
+        gap: 0.85rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(20, 27, 38, 0.07);
+    }
+
+    .guidance-item:last-child {
+        border-bottom: 0;
+    }
+
+    .guidance-number {
+        display: grid;
+        flex: 0 0 auto;
+        width: 2.25rem;
+        height: 2.25rem;
+        place-items: center;
+        border-radius: 50%;
+        color: var(--studio-blue);
+        background: var(--studio-blue-soft);
+        font-size: 0.75rem;
+        font-weight: 900;
+    }
+
+    .guidance-item h3 {
+        margin-bottom: 0.2rem;
+        color: var(--studio-ink);
+        font-size: 0.9rem;
+        font-weight: 800;
+    }
+
+    .guidance-item p {
+        margin: 0;
+        color: var(--studio-muted);
+        font-size: 0.8rem;
+        line-height: 1.55;
+    }
+
+    .next-step-card {
+        margin-top: 1rem;
+        padding: 1rem;
+        border: 1px solid rgba(199, 255, 62, 0.3);
+        border-radius: 1rem;
+        background:
+            linear-gradient(
+                145deg,
+                rgba(239, 255, 199, 0.85),
+                rgba(199, 255, 62, 0.28)
+            );
+    }
+
+    .next-step-card strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: #2a350d;
+        font-size: 0.82rem;
+    }
+
+    .next-step-card span {
+        color: #526520;
+        font-size: 0.77rem;
+        line-height: 1.5;
+    }
+
+    @keyframes pageReveal {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .reveal {
+        animation: pageReveal 650ms ease both;
+    }
+
+    .reveal-delay {
+        animation: pageReveal 650ms 120ms ease both;
+    }
+
+    @media (max-width: 767.98px) {
+        .page-title {
+            font-size: clamp(2.35rem, 12vw, 3.8rem);
+        }
+
+        .form-panel-header {
+            align-items: center;
+        }
+
+        .form-actions {
+            align-items: stretch;
+        }
+
+        .submit-button {
+            width: 100%;
+        }
+
+        .form-note {
+            width: 100%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+</style>
+
+<main class="create-topic-page">
+    <div class="container page-shell py-4 py-lg-5">
+
+```
+    <header class="page-header reveal">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3">
+
+            <div>
+                <p class="page-kicker">
+                    <i class="bi bi-stars"></i>
+                    Start an Investigation
+                </p>
+
+                <h1 class="page-title">
+                    Turn one basketball lesson into focused topics.
+                </h1>
+
+                <p class="page-description">
+                    Describe the principle, problem, or hidden part of the game
+                    you want to explain. The system will use your lesson to create
+                    clear, thought-provoking topic directions.
+                </p>
+            </div>
+
+            <div class="step-indicator">
+                <span>01</span>
+                Lesson description
+            </div>
+
+        </div>
+    </header>
+
+    <div class="row g-4 align-items-stretch">
+
+        <div class="col-lg-8">
+            <section class="chrome-panel form-panel reveal-delay">
+
+                <div class="form-panel-header">
+                    <div>
+                        <h2 class="form-panel-title">
+                            Define the lesson
+                        </h2>
+
+                        <p class="form-panel-copy">
+                            Give the system enough detail to discover the strongest
+                            concepts, conflicts, and teaching opportunities.
+                        </p>
+                    </div>
+
+                    <div class="form-icon">
+                        <i class="bi bi-lightbulb"></i>
+                    </div>
+                </div>
+
+                <form method="post" class="topic-form">
+                    {% csrf_token %}
+
+                    {{ form.as_p }}
+
+                    <div class="form-actions">
+                        <p class="form-note">
+                            <i class="bi bi-shield-check"></i>
+                            Your lesson remains editable before publication.
+                        </p>
+
+                        <button type="submit" class="submit-button">
+                            <i class="bi bi-magic"></i>
+                            Generate Topics
+                        </button>
+                    </div>
+                </form>
+
+            </section>
+        </div>
+
+        <div class="col-lg-4">
+            <aside class="chrome-panel guidance-panel reveal-delay">
+
+                <p class="guidance-kicker">
+                    Better Input
+                </p>
+
+                <h2 class="guidance-title">
+                    What makes a strong lesson description?
+                </h2>
+
+                <div class="guidance-item">
+                    <span class="guidance-number">01</span>
+
+                    <div>
+                        <h3>Describe the visible problem</h3>
+                        <p>
+                            Explain what players, coaches, or parents commonly see.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="guidance-item">
+                    <span class="guidance-number">02</span>
+
+                    <div>
+                        <h3>Reveal what is misunderstood</h3>
+                        <p>
+                            Identify the assumption or habit that hides the real lesson.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="guidance-item">
+                    <span class="guidance-number">03</span>
+
+                    <div>
+                        <h3>Connect it to the system</h3>
+                        <p>
+                            Show how the idea affects timing, space, decisions, or development.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="guidance-item">
+                    <span class="guidance-number">04</span>
+
+                    <div>
+                        <h3>State the desired understanding</h3>
+                        <p>
+                            Clarify what the audience should recognize after learning it.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="next-step-card">
+                    <strong>Next stage</strong>
+                    <span>
+                        After generation, you will compare the topic options and choose
+                        the direction that best communicates the lesson.
+                    </span>
+                </div>
+
+            </aside>
+        </div>
+
+    </div>
+</div>
+```
+
+</main>
+
+{% endblock %}

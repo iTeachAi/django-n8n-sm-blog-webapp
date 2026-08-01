@@ -1,0 +1,63 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Answer Blog Questions{% endblock %}
+
+{% block content %}
+    <h1>{{ blog_questions.generated_topic }}</h1>
+
+    <p>{{ blog_questions.principle }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <section>
+            <label for="{{ form.answer1.id_for_label }}">
+                {{ blog_questions.question1 }}
+            </label>
+            {{ form.answer1 }}
+            {{ form.answer1.errors }}
+        </section>
+
+        <section>
+            <label for="{{ form.answer2.id_for_label }}">
+                {{ blog_questions.question2 }}
+            </label>
+            {{ form.answer2 }}
+            {{ form.answer2.errors }}
+        </section>
+
+        <section>
+            <label for="{{ form.answer3.id_for_label }}">
+                {{ blog_questions.question3 }}
+            </label>
+            {{ form.answer3 }}
+            {{ form.answer3.errors }}
+        </section>
+
+        <section>
+            <label for="{{ form.answer4.id_for_label }}">
+                {{ blog_questions.question4 }}
+            </label>
+            {{ form.answer4 }}
+            {{ form.answer4.errors }}
+        </section>
+
+        <section>
+            <label for="{{ form.answer5.id_for_label }}">
+                {{ blog_questions.question5 }}
+            </label>
+            {{ form.answer5 }}
+            {{ form.answer5.errors }}
+        </section>
+
+        <button type="submit">Save Answers</button>
+    </form>
+
+    
+    <form method="post" 
+    action="{% url 'blog:generate_blog' blog_questions.id %}"
+    >
+        {% csrf_token %}
+        <button type="submit">Generate Blog</button>
+    </form>
+{% endblock %}

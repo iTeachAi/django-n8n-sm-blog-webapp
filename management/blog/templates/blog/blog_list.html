@@ -1,0 +1,1367 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Published Blogs{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --page-bg: #f2f4f8;
+        --surface: rgba(255, 255, 255, 0.92);
+        --surface-solid: #ffffff;
+        --border: rgba(21, 27, 38, 0.09);
+
+        --ink: #11151c;
+        --ink-soft: #3a414d;
+        --muted: #727b88;
+
+        --blue: #376cff;
+        --blue-dark: #244fc5;
+        --blue-soft: rgba(55, 108, 255, 0.1);
+
+        --lime: #c7ff3e;
+        --lime-dark: #9aca22;
+
+        --success: #14855f;
+        --danger: #d83e52;
+
+        --shadow:
+            0 24px 60px rgba(21, 29, 42, 0.09),
+            0 8px 20px rgba(21, 29, 42, 0.04);
+    }
+
+    body {
+        background: var(--page-bg);
+    }
+
+    .blog-library {
+        position: relative;
+        min-height: 100vh;
+        overflow: hidden;
+        color: var(--ink);
+        background:
+            radial-gradient(
+                circle at 7% 3%,
+                rgba(255, 255, 255, 1),
+                transparent 26rem
+            ),
+            radial-gradient(
+                circle at 93% 10%,
+                rgba(55, 108, 255, 0.11),
+                transparent 28rem
+            ),
+            radial-gradient(
+                circle at 80% 93%,
+                rgba(199, 255, 62, 0.13),
+                transparent 26rem
+            ),
+            linear-gradient(
+                145deg,
+                #fbfcfd 0%,
+                #edf0f5 50%,
+                #f7f8fb 100%
+            );
+    }
+
+    .blog-library::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.38;
+        background-image:
+            linear-gradient(
+                rgba(17, 21, 28, 0.024) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgba(17, 21, 28, 0.024) 1px,
+                transparent 1px
+            );
+        background-size: 58px 58px;
+    }
+
+    .page-shell {
+        position: relative;
+        z-index: 1;
+    }
+
+    .chrome-panel {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.96);
+        border-radius: 1.75rem;
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255, 255, 255, 0.98),
+                rgba(241, 244, 247, 0.9) 50%,
+                rgba(221, 226, 232, 0.8)
+            );
+        box-shadow:
+            var(--shadow),
+            inset 0 1px 0 #ffffff;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+
+    .chrome-panel::before {
+        content: "";
+        position: absolute;
+        top: -90%;
+        left: -25%;
+        width: 35%;
+        height: 280%;
+        pointer-events: none;
+        transform: rotate(20deg);
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.96),
+                transparent
+            );
+        opacity: 0.5;
+    }
+
+    /* Hero */
+
+    .library-hero {
+        padding: clamp(1.5rem, 4vw, 3.5rem);
+        margin-bottom: 2.25rem;
+    }
+
+    .page-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        color: var(--blue);
+        font-size: 0.75rem;
+        font-weight: 850;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+    }
+
+    .page-title {
+        max-width: 850px;
+        margin-bottom: 1rem;
+        color: var(--ink);
+        font-size: clamp(2.6rem, 7vw, 5rem);
+        font-weight: 850;
+        line-height: 0.96;
+        letter-spacing: -0.06em;
+    }
+
+    .metallic-text {
+        color: transparent;
+        background:
+            linear-gradient(
+                180deg,
+                #161a21 0%,
+                #555d68 32%,
+                #aeb5be 54%,
+                #4d5560 74%,
+                #171b22 100%
+            );
+        background-clip: text;
+        -webkit-background-clip: text;
+    }
+
+    .page-description {
+        max-width: 700px;
+        margin-bottom: 1.6rem;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.75;
+    }
+
+    .primary-action,
+    .secondary-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.55rem;
+        min-height: 48px;
+        padding: 0.85rem 1.25rem;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 850;
+        text-decoration: none;
+        transition:
+            transform 200ms ease,
+            box-shadow 200ms ease,
+            border-color 200ms ease,
+            color 200ms ease;
+    }
+
+    .primary-action {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(154, 202, 34, 0.5);
+        color: #111508;
+        background:
+            linear-gradient(
+                135deg,
+                #efffc7 0%,
+                var(--lime) 46%,
+                #a8d927 100%
+            );
+        box-shadow:
+            0 14px 32px rgba(154, 202, 34, 0.23),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .primary-action::after {
+        content: "";
+        position: absolute;
+        top: -70%;
+        left: -45%;
+        width: 24%;
+        height: 240%;
+        transform: rotate(18deg);
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.9),
+                transparent
+            );
+        transition: left 520ms ease;
+    }
+
+    .primary-action:hover {
+        color: #111508;
+        transform: translateY(-3px);
+        box-shadow:
+            0 18px 40px rgba(154, 202, 34, 0.3),
+            inset 0 1px 0 #ffffff;
+    }
+
+    .primary-action:hover::after {
+        left: 125%;
+    }
+
+    .secondary-action {
+        border: 1px solid var(--border);
+        color: var(--ink);
+        background:
+            linear-gradient(
+                145deg,
+                #ffffff,
+                #edf0f4
+            );
+        box-shadow:
+            0 9px 20px rgba(24, 31, 43, 0.07),
+            inset 0 1px 0 #ffffff;
+    }
+
+    .secondary-action:hover {
+        color: var(--blue);
+        border-color: rgba(55, 108, 255, 0.25);
+        transform: translateY(-2px);
+        box-shadow:
+            0 14px 28px rgba(24, 31, 43, 0.11),
+            inset 0 1px 0 #ffffff;
+    }
+
+    .metric-panel {
+        height: 100%;
+        padding: 1.35rem;
+    }
+
+    .metric-label {
+        display: block;
+        margin-bottom: 0.45rem;
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 850;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .metric-value {
+        display: block;
+        margin-bottom: 0.4rem;
+        color: var(--blue);
+        font-size: 2.7rem;
+        font-weight: 850;
+        letter-spacing: -0.055em;
+    }
+
+    .metric-copy {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.55;
+    }
+
+    /* Library header */
+
+    .library-section {
+        margin-bottom: 3rem;
+    }
+
+    .section-header {
+        margin-bottom: 1.15rem;
+    }
+
+    .section-kicker {
+        margin-bottom: 0.4rem;
+        color: var(--blue);
+        font-size: 0.75rem;
+        font-weight: 850;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+    }
+
+    .section-title {
+        margin-bottom: 0.35rem;
+        color: var(--ink);
+        font-size: clamp(1.65rem, 4vw, 2.35rem);
+        font-weight: 850;
+        letter-spacing: -0.045em;
+    }
+
+    .section-description {
+        max-width: 690px;
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+    }
+
+    .article-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 0.85rem;
+        border: 1px solid rgba(55, 108, 255, 0.13);
+        border-radius: 999px;
+        color: var(--blue);
+        background: var(--blue-soft);
+        font-size: 0.75rem;
+        font-weight: 850;
+    }
+
+    /* Netflix row */
+
+    .netflix-row-shell {
+        position: relative;
+        margin-left: -0.3rem;
+        margin-right: -0.3rem;
+    }
+
+    .netflix-row {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(250px, 27%);
+        gap: 1rem;
+        overflow-x: auto;
+        overflow-y: visible;
+        padding:
+            0.65rem
+            0.3rem
+            2.4rem;
+        scroll-snap-type: x proximity;
+        scrollbar-width: thin;
+        scrollbar-color:
+            rgba(55, 108, 255, 0.35)
+            transparent;
+    }
+
+    .netflix-row::-webkit-scrollbar {
+        height: 7px;
+    }
+
+    .netflix-row::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .netflix-row::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background:
+            linear-gradient(
+                90deg,
+                rgba(55, 108, 255, 0.28),
+                rgba(55, 108, 255, 0.55)
+            );
+    }
+
+    /* Netflix card */
+
+    .netflix-card {
+        position: relative;
+        min-height: 335px;
+        overflow: hidden;
+        scroll-snap-align: start;
+        border: 1px solid rgba(17, 21, 28, 0.08);
+        border-radius: 1.25rem;
+        background: #151a22;
+        box-shadow:
+            0 14px 32px rgba(21, 29, 42, 0.15);
+        isolation: isolate;
+        transform-origin: center bottom;
+        transition:
+            transform 300ms cubic-bezier(.2, .8, .2, 1),
+            box-shadow 300ms ease,
+            border-color 300ms ease;
+    }
+
+    .netflix-card:hover {
+        z-index: 10;
+        border-color: rgba(199, 255, 62, 0.5);
+        transform:
+            translateY(-10px)
+            scale(1.045);
+        box-shadow:
+            0 30px 60px rgba(21, 29, 42, 0.28),
+            0 0 0 1px rgba(199, 255, 62, 0.08);
+    }
+
+    .netflix-card-link {
+        position: absolute;
+        inset: 0;
+        z-index: 6;
+    }
+
+    .card-background {
+        position: absolute;
+        inset: 0;
+        z-index: -4;
+        transition: transform 650ms ease;
+    }
+
+    .netflix-card:nth-child(6n + 1) .card-background {
+        background:
+            radial-gradient(
+                circle at 18% 18%,
+                rgba(199, 255, 62, 0.9),
+                transparent 28%
+            ),
+            radial-gradient(
+                circle at 85% 12%,
+                rgba(55, 108, 255, 0.9),
+                transparent 36%
+            ),
+            linear-gradient(
+                145deg,
+                #132344,
+                #11151d 55%,
+                #080a0f
+            );
+    }
+
+    .netflix-card:nth-child(6n + 2) .card-background {
+        background:
+            radial-gradient(
+                circle at 78% 22%,
+                rgba(255, 138, 76, 0.85),
+                transparent 32%
+            ),
+            radial-gradient(
+                circle at 15% 75%,
+                rgba(55, 108, 255, 0.75),
+                transparent 35%
+            ),
+            linear-gradient(
+                145deg,
+                #351b29,
+                #161923 56%,
+                #090b10
+            );
+    }
+
+    .netflix-card:nth-child(6n + 3) .card-background {
+        background:
+            radial-gradient(
+                circle at 24% 16%,
+                rgba(0, 211, 180, 0.8),
+                transparent 32%
+            ),
+            radial-gradient(
+                circle at 85% 82%,
+                rgba(199, 255, 62, 0.65),
+                transparent 35%
+            ),
+            linear-gradient(
+                145deg,
+                #123234,
+                #141a20 58%,
+                #080a0e
+            );
+    }
+
+    .netflix-card:nth-child(6n + 4) .card-background {
+        background:
+            radial-gradient(
+                circle at 80% 15%,
+                rgba(133, 83, 255, 0.85),
+                transparent 34%
+            ),
+            radial-gradient(
+                circle at 20% 82%,
+                rgba(55, 108, 255, 0.65),
+                transparent 36%
+            ),
+            linear-gradient(
+                145deg,
+                #231a3c,
+                #151822 58%,
+                #080a0f
+            );
+    }
+
+    .netflix-card:nth-child(6n + 5) .card-background {
+        background:
+            radial-gradient(
+                circle at 20% 20%,
+                rgba(255, 204, 77, 0.85),
+                transparent 31%
+            ),
+            radial-gradient(
+                circle at 85% 75%,
+                rgba(217, 64, 82, 0.7),
+                transparent 36%
+            ),
+            linear-gradient(
+                145deg,
+                #3a2b17,
+                #18191d 58%,
+                #090a0e
+            );
+    }
+
+    .netflix-card:nth-child(6n + 6) .card-background {
+        background:
+            radial-gradient(
+                circle at 80% 20%,
+                rgba(55, 108, 255, 0.9),
+                transparent 32%
+            ),
+            radial-gradient(
+                circle at 15% 80%,
+                rgba(255, 86, 154, 0.68),
+                transparent 35%
+            ),
+            linear-gradient(
+                145deg,
+                #182d4a,
+                #171820 58%,
+                #080a0e
+            );
+    }
+
+    .netflix-card:hover .card-background {
+        transform: scale(1.08);
+    }
+
+    .card-pattern {
+        position: absolute;
+        inset: 0;
+        z-index: -3;
+        opacity: 0.22;
+        background-image:
+            linear-gradient(
+                rgba(255, 255, 255, 0.08) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0.08) 1px,
+                transparent 1px
+            );
+        background-size: 34px 34px;
+        mask-image:
+            linear-gradient(
+                180deg,
+                #000,
+                transparent 76%
+            );
+    }
+
+    .card-glow {
+        position: absolute;
+        top: -25%;
+        left: -30%;
+        z-index: -2;
+        width: 70%;
+        height: 120%;
+        transform: rotate(22deg);
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+        opacity: 0.45;
+        transition:
+            left 650ms ease,
+            opacity 650ms ease;
+    }
+
+    .netflix-card:hover .card-glow {
+        left: 120%;
+        opacity: 0.75;
+    }
+
+    .card-shade {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+            linear-gradient(
+                180deg,
+                rgba(5, 7, 10, 0.02) 0%,
+                rgba(5, 7, 10, 0.15) 32%,
+                rgba(5, 7, 10, 0.78) 71%,
+                rgba(5, 7, 10, 0.98) 100%
+            );
+    }
+
+    .netflix-card-content {
+        position: relative;
+        z-index: 4;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 335px;
+        padding: 1.1rem;
+        color: #ffffff;
+    }
+
+    .card-top-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    .article-number {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 0.68rem;
+        font-weight: 850;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .published-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.34rem 0.6rem;
+        border: 1px solid rgba(199, 255, 62, 0.28);
+        border-radius: 999px;
+        color: #dfff90;
+        background: rgba(10, 14, 8, 0.44);
+        backdrop-filter: blur(8px);
+        font-size: 0.64rem;
+        font-weight: 850;
+    }
+
+    .card-main-content {
+        margin-top: auto;
+    }
+
+    .category-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.38rem;
+        margin-bottom: 0.75rem;
+        padding: 0.38rem 0.65rem;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        color: rgba(255, 255, 255, 0.9);
+        background: rgba(7, 10, 15, 0.42);
+        backdrop-filter: blur(10px);
+        font-size: 0.66rem;
+        font-weight: 800;
+    }
+
+    .blog-title {
+        display: -webkit-box;
+        margin-bottom: 0.7rem;
+        overflow: hidden;
+        color: #ffffff;
+        font-size: 1.35rem;
+        font-weight: 850;
+        line-height: 1.22;
+        letter-spacing: -0.035em;
+        text-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+
+    .blog-summary {
+        display: -webkit-box;
+        max-height: 0;
+        margin: 0;
+        overflow: hidden;
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 0.79rem;
+        line-height: 1.55;
+        opacity: 0;
+        transform: translateY(10px);
+        transition:
+            max-height 320ms ease,
+            margin 320ms ease,
+            opacity 320ms ease,
+            transform 320ms ease;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+
+    .netflix-card:hover .blog-summary {
+        max-height: 5rem;
+        margin-bottom: 0.95rem;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+        padding-top: 0.85rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.13);
+    }
+
+    .blog-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem 0.75rem;
+        min-width: 0;
+        color: rgba(255, 255, 255, 0.66);
+        font-size: 0.68rem;
+    }
+
+    .meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .meta-item i {
+        color: var(--lime);
+    }
+
+    .play-button {
+        position: relative;
+        z-index: 8;
+        display: grid;
+        flex: 0 0 auto;
+        width: 2.5rem;
+        height: 2.5rem;
+        place-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 50%;
+        color: #101408;
+        background:
+            linear-gradient(
+                135deg,
+                #efffc7,
+                var(--lime)
+            );
+        box-shadow:
+            0 9px 22px rgba(0, 0, 0, 0.26),
+            inset 0 1px 0 #ffffff;
+        transition:
+            transform 180ms ease,
+            box-shadow 180ms ease;
+    }
+
+    .play-button:hover {
+        color: #101408;
+        transform: scale(1.1);
+        box-shadow:
+            0 13px 30px rgba(0, 0, 0, 0.32),
+            inset 0 1px 0 #ffffff;
+    }
+
+    .play-button i {
+        margin-left: 2px;
+    }
+
+    /* Featured Netflix card */
+
+    .featured-blog {
+        position: relative;
+        min-height: 420px;
+        margin-bottom: 2.5rem;
+        overflow: hidden;
+        border-radius: 1.75rem;
+        color: #ffffff;
+        background:
+            radial-gradient(
+                circle at 73% 22%,
+                rgba(55, 108, 255, 0.95),
+                transparent 27%
+            ),
+            radial-gradient(
+                circle at 85% 78%,
+                rgba(199, 255, 62, 0.65),
+                transparent 31%
+            ),
+            linear-gradient(
+                120deg,
+                #080b11 0%,
+                #121b2c 52%,
+                #172d50 100%
+            );
+        box-shadow:
+            0 28px 65px rgba(21, 29, 42, 0.2);
+    }
+
+    .featured-blog::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.2;
+        background-image:
+            linear-gradient(
+                rgba(255, 255, 255, 0.08) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0.08) 1px,
+                transparent 1px
+            );
+        background-size: 48px 48px;
+    }
+
+    .featured-blog::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(
+                90deg,
+                rgba(5, 7, 11, 0.98) 0%,
+                rgba(5, 7, 11, 0.84) 44%,
+                rgba(5, 7, 11, 0.12) 100%
+            );
+    }
+
+    .featured-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        min-height: 420px;
+        max-width: 760px;
+        flex-direction: column;
+        justify-content: center;
+        padding: clamp(1.5rem, 5vw, 4rem);
+    }
+
+    .featured-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: fit-content;
+        margin-bottom: 1rem;
+        color: var(--lime);
+        font-size: 0.73rem;
+        font-weight: 850;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+    }
+
+    .featured-title {
+        margin-bottom: 1rem;
+        color: #ffffff;
+        font-size: clamp(2.2rem, 5vw, 4.3rem);
+        font-weight: 850;
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+    }
+
+    .featured-summary {
+        display: -webkit-box;
+        max-width: 680px;
+        margin-bottom: 1.45rem;
+        overflow: hidden;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 0.96rem;
+        line-height: 1.75;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+
+    .featured-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem 1rem;
+        margin-bottom: 1.5rem;
+        color: rgba(255, 255, 255, 0.68);
+        font-size: 0.76rem;
+    }
+
+    .featured-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.55rem;
+        width: fit-content;
+        min-height: 48px;
+        padding: 0.82rem 1.3rem;
+        border-radius: 999px;
+        color: #101408;
+        background:
+            linear-gradient(
+                135deg,
+                #efffc7,
+                var(--lime)
+            );
+        box-shadow:
+            0 14px 30px rgba(0, 0, 0, 0.27),
+            inset 0 1px 0 #ffffff;
+        font-size: 0.85rem;
+        font-weight: 850;
+        text-decoration: none;
+        transition:
+            transform 200ms ease,
+            box-shadow 200ms ease;
+    }
+
+    .featured-action:hover {
+        color: #101408;
+        transform: translateY(-3px);
+        box-shadow:
+            0 20px 40px rgba(0, 0, 0, 0.34),
+            inset 0 1px 0 #ffffff;
+    }
+
+    /* Empty state */
+
+    .empty-library {
+        padding: clamp(3rem, 7vw, 5.5rem) 1.5rem;
+        text-align: center;
+    }
+
+    .empty-icon {
+        display: grid;
+        width: 5rem;
+        height: 5rem;
+        place-items: center;
+        margin: 0 auto 1.35rem;
+        border: 1px solid rgba(55, 108, 255, 0.16);
+        border-radius: 50%;
+        color: var(--blue);
+        background:
+            radial-gradient(
+                circle at 35% 25%,
+                #ffffff,
+                #e3e9ff 56%,
+                #b9c9ff
+            );
+        box-shadow:
+            0 15px 35px rgba(21, 29, 42, 0.11),
+            inset 0 1px 0 #ffffff;
+        font-size: 1.75rem;
+    }
+
+    .empty-title {
+        margin-bottom: 0.65rem;
+        color: var(--ink);
+        font-size: 1.75rem;
+        font-weight: 850;
+    }
+
+    .empty-copy {
+        max-width: 590px;
+        margin: 0 auto 1.6rem;
+        color: var(--muted);
+        line-height: 1.75;
+    }
+
+    @keyframes pageReveal {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .reveal {
+        animation: pageReveal 650ms ease both;
+    }
+
+    .reveal-delay {
+        animation: pageReveal 650ms 120ms ease both;
+    }
+
+    @media (max-width: 1199.98px) {
+        .netflix-row {
+            grid-auto-columns: minmax(245px, 34%);
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .netflix-row {
+            grid-auto-columns: minmax(240px, 44%);
+        }
+
+        .featured-blog::after {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(5, 7, 11, 0.96),
+                    rgba(5, 7, 11, 0.62)
+                );
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .page-title {
+            font-size: clamp(2.4rem, 12vw, 3.9rem);
+        }
+
+        .primary-action,
+        .secondary-action {
+            width: 100%;
+        }
+
+        .netflix-row {
+            grid-auto-columns: 82%;
+            gap: 0.8rem;
+        }
+
+        .netflix-card,
+        .netflix-card-content {
+            min-height: 320px;
+        }
+
+        .netflix-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-summary {
+            max-height: 5rem;
+            margin-bottom: 0.95rem;
+            opacity: 1;
+            transform: none;
+        }
+
+        .featured-blog,
+        .featured-content {
+            min-height: 390px;
+        }
+
+        .featured-blog::after {
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(5, 7, 11, 0.44),
+                    rgba(5, 7, 11, 0.98)
+                );
+        }
+
+        .featured-content {
+            justify-content: flex-end;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+</style>
+
+<main class="blog-library">
+    <div class="container-fluid page-shell px-3 px-md-4 px-xl-5 py-4 py-lg-5">
+
+```
+    <!-- Page hero -->
+    <section class="chrome-panel library-hero reveal">
+        <div class="row align-items-center g-4 g-lg-5">
+
+            <div class="col-lg-8">
+                <span class="page-kicker">
+                    <i class="bi bi-collection-play"></i>
+                    Basketball Knowledge Library
+                </span>
+
+                <h1 class="page-title">
+                    Choose what you want to
+                    <span class="metallic-text">
+                        understand next.
+                    </span>
+                </h1>
+
+                <p class="page-description">
+                    Browse complete basketball investigations built from focused
+                    topics, five defining questions, systematic reasoning, and
+                    development-centered lessons.
+                </p>
+
+                <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 gap-sm-3">
+                    <a
+                        href="{% url 'blog:create_topic' %}"
+                        class="primary-action"
+                    >
+                        <i class="bi bi-plus-circle"></i>
+                        Start New Investigation
+                    </a>
+
+                    <a
+                        href="{% url 'blog:home' %}"
+                        class="secondary-action"
+                    >
+                        <i class="bi bi-grid"></i>
+                        Return to Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="chrome-panel metric-panel">
+                    <span class="metric-label">
+                        Available Lessons
+                    </span>
+
+                    <strong class="metric-value">
+                        {{ blogs|length }}
+                    </strong>
+
+                    <p class="metric-copy">
+                        Published basketball articles ready to study,
+                        challenge, and apply.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    {% if blogs %}
+
+        <!-- Featured article -->
+        {% for blog in blogs %}
+            {% if forloop.first %}
+                <section class="featured-blog reveal-delay">
+
+                    <div class="featured-content">
+                        <span class="featured-label">
+                            <i class="bi bi-stars"></i>
+                            Featured Investigation
+                        </span>
+
+                        <h2 class="featured-title">
+                            {{ blog.name }}
+                        </h2>
+
+                        <p class="featured-summary">
+                            {{ blog.summary }}
+                        </p>
+
+                        <div class="featured-meta">
+                            {% if blog.category %}
+                                <span class="meta-item">
+                                    <i class="bi bi-tag"></i>
+                                    {{ blog.category }}
+                                </span>
+                            {% endif %}
+
+                            {% if blog.author %}
+                                <span class="meta-item">
+                                    <i class="bi bi-person"></i>
+                                    {{ blog.author }}
+                                </span>
+                            {% endif %}
+
+                            {% if blog.date %}
+                                <span class="meta-item">
+                                    <i class="bi bi-calendar3"></i>
+                                    {{ blog.date|date:"F j, Y" }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <a
+                            href="{% url 'blog:blog_detail' blog.id %}"
+                            class="featured-action"
+                        >
+                            <i class="bi bi-play-fill"></i>
+                            Read Featured Article
+                        </a>
+                    </div>
+
+                </section>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Netflix-style library row -->
+        <section class="library-section reveal-delay">
+
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 section-header">
+
+                <div>
+                    <p class="section-kicker">
+                        Continue Exploring
+                    </p>
+
+                    <h2 class="section-title">
+                        Basketball Investigations
+                    </h2>
+
+                    <p class="section-description">
+                        Scroll through the library and select the lesson that
+                        matches what you want to understand about the game.
+                    </p>
+                </div>
+
+                <span class="article-count">
+                    <i class="bi bi-collection"></i>
+
+                    {{ blogs|length }}
+                    article{{ blogs|length|pluralize }}
+                </span>
+
+            </div>
+
+            <div class="netflix-row-shell">
+                <div class="netflix-row">
+
+                    {% for blog in blogs %}
+
+                        <article class="netflix-card">
+
+                            <div class="card-background"></div>
+                            <div class="card-pattern"></div>
+                            <div class="card-glow"></div>
+                            <div class="card-shade"></div>
+
+                            <a
+                                href="{% url 'blog:blog_detail' blog.id %}"
+                                class="netflix-card-link"
+                                aria-label="Read {{ blog.name }}"
+                            ></a>
+
+                            <div class="netflix-card-content">
+
+                                <div class="card-top-row">
+                                    <span class="article-number">
+                                        <i class="bi bi-record-circle"></i>
+                                        Article {{ forloop.counter|stringformat:"02d" }}
+                                    </span>
+
+                                    <span class="published-badge">
+                                        <i
+                                            class="bi bi-circle-fill"
+                                            style="font-size: 0.38rem;"
+                                        ></i>
+                                        Published
+                                    </span>
+                                </div>
+
+                                <div class="card-main-content">
+
+                                    {% if blog.category %}
+                                        <span class="category-badge">
+                                            <i class="bi bi-tag"></i>
+                                            {{ blog.category }}
+                                        </span>
+                                    {% endif %}
+
+                                    <h3 class="blog-title">
+                                        {{ blog.name }}
+                                    </h3>
+
+                                    <p class="blog-summary">
+                                        {{ blog.summary }}
+                                    </p>
+
+                                    <div class="card-footer">
+
+                                        <div class="blog-meta">
+                                            {% if blog.author %}
+                                                <span class="meta-item">
+                                                    <i class="bi bi-person"></i>
+                                                    {{ blog.author }}
+                                                </span>
+                                            {% endif %}
+
+                                            {% if blog.date %}
+                                                <span class="meta-item">
+                                                    <i class="bi bi-calendar3"></i>
+                                                    {{ blog.date|date:"M j, Y" }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+
+                                        <a
+                                            href="{% url 'blog:blog_detail' blog.id %}"
+                                            class="play-button"
+                                            aria-label="Open {{ blog.name }}"
+                                        >
+                                            <i class="bi bi-play-fill"></i>
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+
+        </section>
+
+    {% else %}
+
+        <section class="chrome-panel empty-library reveal-delay">
+
+            <div class="empty-icon">
+                <i class="bi bi-collection-play"></i>
+            </div>
+
+            <p class="section-kicker mb-2">
+                Library awaiting publication
+            </p>
+
+            <h2 class="empty-title">
+                No blogs have been generated yet.
+            </h2>
+
+            <p class="empty-copy">
+                Create a lesson, choose a focused topic, answer all five
+                defining questions, and generate your first basketball article.
+            </p>
+
+            <a
+                href="{% url 'blog:create_topic' %}"
+                class="primary-action"
+            >
+                <i class="bi bi-plus-circle"></i>
+                Create Your First Blog
+            </a>
+
+        </section>
+
+    {% endif %}
+
+</div>
+```
+
+</main>
+
+{% endblock %}

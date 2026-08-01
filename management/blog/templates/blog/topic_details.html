@@ -1,0 +1,21 @@
+{% extends 'blog/base.html' %}
+
+{% block title %} Topic Details {% endblock %}
+
+{% block content %}
+    
+    <h3>Choose A Topic</h3>
+    <h4>Lesson Description</h4>
+    <p>{{topic.lesson_description}}</p>
+    <hr>
+    {% for suggestion in topic.suggested_topics.0.output|slice:":5" %}
+            <article>
+                <a href="#">
+                    <h3>{{ forloop.counter }}. {{ suggestion.topic }}</h3>
+                </a>
+            </article>
+        {% empty %}
+            <p>No suggested topics were generated.</p>
+    {% endfor %}
+
+{% endblock %}

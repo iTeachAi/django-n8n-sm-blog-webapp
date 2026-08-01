@@ -1,0 +1,37 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Select a Topic{% endblock %}
+
+{% block content %}
+    <h1>Select a Blog Topic</h1>
+
+    <p>{{ topic_request.lesson_description }}</p>
+
+    {% for generated_topic in generated_topics %}
+        <article>
+            <h2>{{ generated_topic.topic }}</h2>
+            <p>{{ generated_topic.principle }}</p>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="topic_index"
+                    value="{{ forloop.counter0 }}"
+                >
+
+                <button type="submit">
+                    Select this topic
+                </button>
+            </form>
+        </article>
+        <hr>
+    {% empty %}
+        <p>No generated topics are available.</p>
+
+        {% if topic_request.generation_error %}
+            <p>{{ topic_request.generation_error }}</p>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
