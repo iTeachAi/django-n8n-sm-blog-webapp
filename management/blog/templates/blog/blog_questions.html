@@ -3,61 +3,687 @@
 {% block title %}Answer Blog Questions{% endblock %}
 
 {% block content %}
-    <h1>{{ blog_questions.generated_topic }}</h1>
 
-    <p>{{ blog_questions.principle }}</p>
+<style>
+    :root {
+        --studio-bg: #e8e1d5;
+        --studio-border: rgba(48, 71, 67, 0.16);
+        --studio-text: #24312f;
+        --studio-muted: #66716d;
+        --studio-dark: #173f3a;
+        --studio-green: #2f7467;
+        --studio-lime: #a6c96a;
+        --studio-amber: #d99a52;
+        --studio-purple: #71678d;
+        --studio-pink: #bd6e7d;
+        --studio-shadow:
+            0 22px 52px rgba(48, 58, 53, 0.13),
+            inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
 
-    <form method="post">
-        {% csrf_token %}
+    body {
+        background: var(--studio-bg);
+    }
 
-        <section>
-            <label for="{{ form.answer1.id_for_label }}">
-                {{ blog_questions.question1 }}
-            </label>
-            {{ form.answer1 }}
-            {{ form.answer1.errors }}
+    .questions-page {
+        position: relative;
+        min-height: calc(100vh - 70px);
+        overflow: hidden;
+        padding: 2rem 1.25rem 3.5rem;
+        color: var(--studio-text);
+        background:
+            radial-gradient(circle at 7% 8%, rgba(166, 201, 106, 0.42), transparent 22rem),
+            radial-gradient(circle at 94% 14%, rgba(113, 103, 141, 0.30), transparent 25rem),
+            radial-gradient(circle at 78% 90%, rgba(217, 154, 82, 0.26), transparent 24rem),
+            linear-gradient(145deg, #e2d8c7 0%, #d8e1d4 48%, #ded4df 100%);
+    }
+
+    .questions-page::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.22;
+        background-image:
+            linear-gradient(rgba(23, 63, 58, 0.045) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(23, 63, 58, 0.045) 1px, transparent 1px);
+        background-size: 42px 42px;
+    }
+
+    .questions-shell {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 1080px;
+        margin-inline: auto;
+    }
+
+    .gloss-panel {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--studio-border);
+        border-radius: 1.5rem;
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255, 252, 244, 0.76),
+                rgba(222, 229, 216, 0.60)
+            );
+        box-shadow: var(--studio-shadow);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+
+    .gloss-panel::before {
+        content: "";
+        position: absolute;
+        top: -82%;
+        left: -28%;
+        width: 48%;
+        height: 250%;
+        transform: rotate(20deg);
+        pointer-events: none;
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.45),
+                transparent
+            );
+    }
+
+    .page-header {
+        padding: 1.25rem 1.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .page-kicker,
+    .section-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin: 0 0 0.45rem;
+        color: var(--studio-green);
+        font-size: 0.7rem;
+        font-weight: 850;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .page-title {
+        margin: 0 0 0.45rem;
+        font-size: clamp(1.7rem, 4vw, 2.8rem);
+        font-weight: 850;
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+    }
+
+    .page-description {
+        max-width: 720px;
+        margin: 0;
+        color: var(--studio-muted);
+        font-size: 0.88rem;
+        line-height: 1.55;
+    }
+
+    .step-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.55rem 0.75rem;
+        border: 1px solid rgba(217, 154, 82, 0.23);
+        border-radius: 999px;
+        color: #7a552d;
+        background: rgba(217, 154, 82, 0.16);
+        font-size: 0.72rem;
+        font-weight: 800;
+    }
+
+    .step-indicator span {
+        display: grid;
+        width: 1.65rem;
+        height: 1.65rem;
+        place-items: center;
+        border-radius: 50%;
+        color: #f4eee7;
+        background:
+            linear-gradient(
+                145deg,
+                var(--studio-amber),
+                var(--studio-pink)
+            );
+        box-shadow:
+            0 7px 16px rgba(189, 110, 125, 0.18),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        font-size: 0.68rem;
+    }
+
+    .context-panel,
+    .questions-panel,
+    .action-panel {
+        padding: 1.2rem;
+    }
+
+    .context-panel {
+        margin-bottom: 1rem;
+    }
+
+    .context-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+        gap: 0.9rem;
+    }
+
+    .context-card {
+        padding: 0.95rem;
+        border: 1px solid rgba(48, 71, 67, 0.12);
+        border-radius: 1rem;
+        background: rgba(238, 233, 221, 0.64);
+    }
+
+    .context-label {
+        display: block;
+        margin-bottom: 0.28rem;
+        color: var(--studio-muted);
+        font-size: 0.64rem;
+        font-weight: 850;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .context-value {
+        margin: 0;
+        color: var(--studio-text);
+        font-size: 0.86rem;
+        font-weight: 800;
+        line-height: 1.45;
+    }
+
+    .context-copy {
+        margin: 0;
+        color: var(--studio-muted);
+        font-size: 0.8rem;
+        line-height: 1.5;
+    }
+
+    .questions-panel {
+        margin-bottom: 1rem;
+    }
+
+    .panel-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid rgba(48, 71, 67, 0.11);
+    }
+
+    .section-title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 850;
+    }
+
+    .section-copy {
+        margin: 0.25rem 0 0;
+        color: var(--studio-muted);
+        font-size: 0.78rem;
+        line-height: 1.5;
+    }
+
+    .question-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.48rem 0.68rem;
+        border-radius: 999px;
+        color: var(--studio-purple);
+        background: rgba(113, 103, 141, 0.12);
+        font-size: 0.68rem;
+        font-weight: 800;
+    }
+
+    .questions-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.85rem;
+    }
+
+    .question-card {
+        padding: 0.95rem;
+        border: 1px solid rgba(48, 71, 67, 0.12);
+        border-radius: 1rem;
+        background: rgba(238, 233, 221, 0.66);
+    }
+
+    .question-card:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .question-heading {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.7rem;
+        margin-bottom: 0.65rem;
+    }
+
+    .question-number {
+        display: grid;
+        width: 2rem;
+        height: 2rem;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 0.68rem;
+        color: #f4eee7;
+        background:
+            linear-gradient(
+                145deg,
+                var(--studio-purple),
+                var(--studio-pink)
+            );
+        box-shadow:
+            0 7px 16px rgba(113, 103, 141, 0.16),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        font-size: 0.68rem;
+        font-weight: 900;
+    }
+
+    .question-card label {
+        display: block;
+        margin: 0;
+        color: var(--studio-text);
+        font-size: 0.8rem;
+        font-weight: 800;
+        line-height: 1.45;
+    }
+
+    .question-card textarea,
+    .question-card input,
+    .question-card select {
+        width: 100%;
+        min-height: 2.8rem;
+        border: 1px solid rgba(48, 71, 67, 0.16);
+        border-radius: 0.85rem;
+        padding: 0.72rem 0.82rem;
+        color: var(--studio-text);
+        background: rgba(234, 229, 216, 0.9);
+        box-shadow:
+            inset 0 1px 3px rgba(35, 49, 47, 0.05),
+            0 1px 0 rgba(255, 255, 255, 0.5);
+        font-size: 0.84rem;
+        transition:
+            border-color 180ms ease,
+            box-shadow 180ms ease,
+            transform 180ms ease;
+    }
+
+    .question-card textarea {
+        min-height: 105px;
+        resize: vertical;
+        line-height: 1.5;
+    }
+
+    .question-card textarea:focus,
+    .question-card input:focus,
+    .question-card select:focus {
+        outline: none;
+        border-color: rgba(47, 116, 103, 0.6);
+        box-shadow: 0 0 0 0.22rem rgba(47, 116, 103, 0.12);
+        transform: translateY(-1px);
+    }
+
+    .question-card ul.errorlist {
+        margin: 0.45rem 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .question-card ul.errorlist li {
+        padding: 0.5rem 0.65rem;
+        border-radius: 0.7rem;
+        color: #93495a;
+        background: rgba(189, 110, 125, 0.11);
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+
+    .action-panel {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .action-copy {
+        margin: 0;
+        color: var(--studio-muted);
+        font-size: 0.76rem;
+        line-height: 1.5;
+    }
+
+    .action-group {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        flex-wrap: wrap;
+    }
+
+    .save-button,
+    .generate-button {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.48rem;
+        min-height: 42px;
+        overflow: hidden;
+        border-radius: 0.85rem;
+        padding: 0.68rem 0.95rem;
+        font-size: 0.78rem;
+        font-weight: 850;
+        transition:
+            transform 180ms ease,
+            box-shadow 180ms ease,
+            border-color 180ms ease;
+    }
+
+    .save-button {
+        border: 1px solid rgba(48, 71, 67, 0.2);
+        color: var(--studio-dark);
+        background: rgba(238, 233, 221, 0.75);
+    }
+
+    .save-button:hover {
+        transform: translateY(-2px);
+        border-color: rgba(47, 116, 103, 0.42);
+        box-shadow: 0 10px 22px rgba(48, 58, 53, 0.1);
+    }
+
+    .generate-button {
+        border: 0;
+        color: #eef2e9;
+        background:
+            linear-gradient(
+                135deg,
+                var(--studio-green),
+                var(--studio-dark)
+            );
+        box-shadow:
+            0 12px 26px rgba(23, 63, 58, 0.22),
+            inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    }
+
+    .generate-button::after {
+        content: "";
+        position: absolute;
+        top: -70%;
+        left: -45%;
+        width: 24%;
+        height: 240%;
+        transform: rotate(18deg);
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.68),
+                transparent
+            );
+        transition: left 520ms ease;
+    }
+
+    .generate-button:hover {
+        color: #eef2e9;
+        transform: translateY(-2px);
+        box-shadow:
+            0 16px 32px rgba(23, 63, 58, 0.28),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .generate-button:hover::after {
+        left: 125%;
+    }
+
+    .inline-form {
+        margin: 0;
+    }
+
+    @media (max-width: 991.98px) {
+        .questions-grid,
+        .context-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .question-card:last-child {
+            grid-column: auto;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .questions-page {
+            padding: 1rem 0.8rem 2.5rem;
+        }
+
+        .page-header,
+        .context-panel,
+        .questions-panel,
+        .action-panel {
+            padding: 1rem;
+        }
+
+        .action-panel {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .action-group {
+            width: 100%;
+        }
+
+        .save-button,
+        .generate-button,
+        .inline-form {
+            width: 100%;
+        }
+
+        .gloss-panel {
+            border-radius: 1.2rem;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+</style>
+
+<main class="questions-page">
+    <div class="questions-shell">
+
+        <header class="gloss-panel page-header">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3">
+
+                <div>
+                    <p class="page-kicker">
+                        <i class="bi bi-ui-checks"></i>
+                        Clarify the Message
+                    </p>
+
+                    <h1 class="page-title">
+                        {{ blog_questions.generated_topic }}
+                    </h1>
+
+                    <p class="page-description">
+                        Answer each question with enough detail to turn this topic
+                        into a complete, focused basketball article.
+                    </p>
+                </div>
+
+                <div class="step-indicator">
+                    <span>03</span>
+                    Answer five questions
+                </div>
+
+            </div>
+        </header>
+
+        <section class="gloss-panel context-panel">
+            <div class="context-grid">
+
+                <div class="context-card">
+                    <span class="context-label">
+                        Selected Topic
+                    </span>
+
+                    <p class="context-value">
+                        {{ blog_questions.generated_topic }}
+                    </p>
+                </div>
+
+                <div class="context-card">
+                    <span class="context-label">
+                        Central Principle
+                    </span>
+
+                    <p class="context-copy">
+                        {{ blog_questions.principle }}
+                    </p>
+                </div>
+
+            </div>
         </section>
 
-        <section>
-            <label for="{{ form.answer2.id_for_label }}">
-                {{ blog_questions.question2 }}
-            </label>
-            {{ form.answer2 }}
-            {{ form.answer2.errors }}
-        </section>
+        <form method="post">
+            {% csrf_token %}
 
-        <section>
-            <label for="{{ form.answer3.id_for_label }}">
-                {{ blog_questions.question3 }}
-            </label>
-            {{ form.answer3 }}
-            {{ form.answer3.errors }}
-        </section>
+            <section class="gloss-panel questions-panel">
+                <div class="panel-heading">
 
-        <section>
-            <label for="{{ form.answer4.id_for_label }}">
-                {{ blog_questions.question4 }}
-            </label>
-            {{ form.answer4 }}
-            {{ form.answer4.errors }}
-        </section>
+                    <div>
+                        <p class="section-kicker">
+                            Required Input
+                        </p>
 
-        <section>
-            <label for="{{ form.answer5.id_for_label }}">
-                {{ blog_questions.question5 }}
-            </label>
-            {{ form.answer5 }}
-            {{ form.answer5.errors }}
-        </section>
+                        <h2 class="section-title">
+                            Complete the lesson
+                        </h2>
 
-        <button type="submit">Save Answers</button>
-    </form>
+                        <p class="section-copy">
+                            Each response should remove one major gap in the final message.
+                        </p>
+                    </div>
 
-    
-    <form method="post" 
-    action="{% url 'blog:generate_blog' blog_questions.id %}"
-    >
-        {% csrf_token %}
-        <button type="submit">Generate Blog</button>
-    </form>
+                    <span class="question-count">
+                        <i class="bi bi-list-check"></i>
+                        5 questions
+                    </span>
+
+                </div>
+
+                <div class="questions-grid">
+
+                    <section class="question-card">
+                        <div class="question-heading">
+                            <span class="question-number">01</span>
+
+                            <label for="{{ form.answer1.id_for_label }}">
+                                {{ blog_questions.question1 }}
+                            </label>
+                        </div>
+
+                        {{ form.answer1 }}
+                        {{ form.answer1.errors }}
+                    </section>
+
+                    <section class="question-card">
+                        <div class="question-heading">
+                            <span class="question-number">02</span>
+
+                            <label for="{{ form.answer2.id_for_label }}">
+                                {{ blog_questions.question2 }}
+                            </label>
+                        </div>
+
+                        {{ form.answer2 }}
+                        {{ form.answer2.errors }}
+                    </section>
+
+                    <section class="question-card">
+                        <div class="question-heading">
+                            <span class="question-number">03</span>
+
+                            <label for="{{ form.answer3.id_for_label }}">
+                                {{ blog_questions.question3 }}
+                            </label>
+                        </div>
+
+                        {{ form.answer3 }}
+                        {{ form.answer3.errors }}
+                    </section>
+
+                    <section class="question-card">
+                        <div class="question-heading">
+                            <span class="question-number">04</span>
+
+                            <label for="{{ form.answer4.id_for_label }}">
+                                {{ blog_questions.question4 }}
+                            </label>
+                        </div>
+
+                        {{ form.answer4 }}
+                        {{ form.answer4.errors }}
+                    </section>
+
+                    <section class="question-card">
+                        <div class="question-heading">
+                            <span class="question-number">05</span>
+
+                            <label for="{{ form.answer5.id_for_label }}">
+                                {{ blog_questions.question5 }}
+                            </label>
+                        </div>
+
+                        {{ form.answer5 }}
+                        {{ form.answer5.errors }}
+                    </section>
+
+                </div>
+            </section>
+
+            <section class="gloss-panel action-panel">
+                <p class="action-copy">
+                    Save your answers before generating the final blog.
+                </p>
+
+                <div class="action-group">
+                    <button type="submit" class="save-button">
+                        <i class="bi bi-save"></i>
+                        Save Answers
+                    </button>
+                </div>
+            </section>
+        </form>
+
+        <form
+            method="post"
+            action="{% url 'blog:generate_blog' blog_questions.id %}"
+            class="inline-form mt-3"
+        >
+            {% csrf_token %}
+
+            <button type="submit" class="generate-button w-100">
+                <i class="bi bi-stars"></i>
+                Generate Blog
+            </button>
+        </form>
+
+    </div>
+</main>
+
 {% endblock %}

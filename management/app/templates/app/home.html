@@ -3,758 +3,384 @@
 {% block title %}Blog Studio{% endblock %}
 
 {% block content %}
-
 <style>
     :root {
-        --page-bg: #07090d;
-        --surface: rgba(18, 22, 30, 0.78);
-        --surface-light: rgba(255, 255, 255, 0.08);
-        --border-light: rgba(255, 255, 255, 0.14);
-        --text-main: #f8fafc;
-        --text-muted: #98a2b3;
-        --accent: #b8ff3d;
-        --danger-soft: rgba(220, 53, 69, 0.12);
+        --bb-bg: #07090d;
+        --bb-panel: rgba(15, 19, 27, 0.92);
+        --bb-panel-2: rgba(22, 27, 37, 0.88);
+        --bb-border: rgba(255, 255, 255, 0.10);
+        --bb-border-strong: rgba(255, 255, 255, 0.17);
+        --bb-text: #f7f9fc;
+        --bb-muted: #98a2b3;
+        --bb-accent: #b8ff3d;
+        --bb-accent-soft: rgba(184, 255, 61, 0.10);
+        --bb-danger: #ff7b86;
+        --bb-radius: 1.1rem;
+        --bb-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
     }
 
-    .blog-home {
-        position: relative;
+    .studio-dashboard {
         min-height: 100vh;
-        overflow: hidden;
-        color: var(--text-main);
+        color: var(--bb-text);
         background:
-            radial-gradient(
-                circle at 10% 10%,
-                rgba(184, 255, 61, 0.12),
-                transparent 28rem
-            ),
-            radial-gradient(
-                circle at 90% 30%,
-                rgba(106, 90, 255, 0.13),
-                transparent 32rem
-            ),
-            linear-gradient(
-                145deg,
-                #06070a 0%,
-                #0b0f16 45%,
-                #05070b 100%
-            );
+            radial-gradient(circle at 8% 0%, rgba(184, 255, 61, 0.10), transparent 25rem),
+            radial-gradient(circle at 92% 12%, rgba(74, 123, 255, 0.08), transparent 28rem),
+            var(--bb-bg);
     }
 
-    .blog-home::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        opacity: 0.18;
-        background-image:
-            linear-gradient(
-                rgba(255, 255, 255, 0.025) 1px,
-                transparent 1px
-            ),
-            linear-gradient(
-                90deg,
-                rgba(255, 255, 255, 0.025) 1px,
-                transparent 1px
-            );
-        background-size: 45px 45px;
+    .studio-shell { max-width: 1480px; }
+
+    .studio-panel {
+        border: 1px solid var(--bb-border);
+        border-radius: var(--bb-radius);
+        background: linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
+        box-shadow: var(--bb-shadow), inset 0 1px 0 rgba(255,255,255,.08);
+        backdrop-filter: blur(18px);
     }
 
-    .page-shell {
-        position: relative;
-        z-index: 1;
+    .studio-header { padding: 1.35rem; }
+
+    .studio-kicker,
+    .section-kicker {
+        margin: 0 0 .35rem;
+        color: var(--bb-accent);
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .13em;
+        text-transform: uppercase;
     }
 
-    .chrome-panel {
-        position: relative;
-        overflow: hidden;
-        border: 1px solid var(--border-light);
-        border-radius: 1.75rem;
-        background:
-            linear-gradient(
-                145deg,
-                rgba(255, 255, 255, 0.12),
-                rgba(255, 255, 255, 0.035)
-            );
-        box-shadow:
-            0 24px 60px rgba(0, 0, 0, 0.35),
-            inset 0 1px 0 rgba(255, 255, 255, 0.16);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+    .studio-title {
+        margin: 0;
+        font-size: clamp(1.65rem, 3vw, 2.45rem);
+        font-weight: 800;
+        letter-spacing: -.035em;
     }
 
-    .chrome-panel::before {
-        content: "";
-        position: absolute;
-        top: -50%;
-        left: -20%;
-        width: 45%;
-        height: 180%;
-        transform: rotate(22deg);
-        pointer-events: none;
-        background:
-            linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.08),
-                transparent
-            );
+    .studio-description {
+        max-width: 660px;
+        margin: .45rem 0 0;
+        color: var(--bb-muted);
+        font-size: .94rem;
+        line-height: 1.55;
     }
 
-    .hero-section {
-        margin-bottom: 3.5rem;
-    }
-
-    .eyebrow {
+    .studio-action {
         display: inline-flex;
         align-items: center;
-        gap: 0.55rem;
-        padding: 0.55rem 0.9rem;
-        border: 1px solid rgba(184, 255, 61, 0.28);
-        border-radius: 999px;
-        color: var(--accent);
-        background: rgba(184, 255, 61, 0.08);
-        font-size: 0.78rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-    }
-
-    .hero-title {
-        max-width: 850px;
-        margin-bottom: 1.35rem;
-        font-size: clamp(2.5rem, 7vw, 5.5rem);
+        justify-content: center;
+        gap: .55rem;
+        min-height: 42px;
+        border-radius: .75rem;
+        padding: .68rem 1rem;
+        font-size: .88rem;
         font-weight: 800;
-        line-height: 0.96;
-        letter-spacing: -0.055em;
+        text-decoration: none;
+        transition: transform .18s ease, border-color .18s ease, background .18s ease;
     }
 
-    .chrome-text {
-        color: transparent;
-        background:
-            linear-gradient(
-                180deg,
-                #ffffff 0%,
-                #cbd2dc 45%,
-                #717986 68%,
-                #f8fafc 100%
-            );
-        background-clip: text;
-        -webkit-background-clip: text;
-    }
+    .studio-action:hover { transform: translateY(-2px); }
+    .studio-action-primary { border: 1px solid var(--bb-accent); color: #111607; background: var(--bb-accent); }
+    .studio-action-primary:hover { color: #111607; background: #cbff70; }
+    .studio-action-secondary { border: 1px solid var(--bb-border-strong); color: var(--bb-text); background: rgba(255,255,255,.045); }
+    .studio-action-secondary:hover { color: #fff; border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.08); }
 
-    .hero-description {
-        max-width: 680px;
-        margin-bottom: 1.75rem;
-        color: var(--text-muted);
-        font-size: 1.05rem;
-        line-height: 1.75;
-    }
-
-    .primary-action {
-        position: relative;
-        overflow: hidden;
-        border: 0;
-        border-radius: 999px;
-        padding: 0.9rem 1.35rem;
-        color: #101507;
-        background:
-            linear-gradient(
-                135deg,
-                #d5ff8c,
-                var(--accent)
-            );
-        box-shadow:
-            0 10px 28px rgba(184, 255, 61, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.7);
-        font-weight: 800;
-        transition:
-            transform 200ms ease,
-            box-shadow 200ms ease;
-    }
-
-    .primary-action:hover {
-        color: #101507;
-        transform: translateY(-3px);
-        box-shadow:
-            0 16px 36px rgba(184, 255, 61, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    }
-
-    .secondary-action {
-        border: 1px solid var(--border-light);
-        border-radius: 999px;
-        padding: 0.9rem 1.35rem;
-        color: var(--text-main);
-        background: rgba(255, 255, 255, 0.045);
-        font-weight: 700;
-        transition:
-            border-color 200ms ease,
-            background 200ms ease,
-            transform 200ms ease;
-    }
-
-    .secondary-action:hover {
-        color: #ffffff;
-        border-color: rgba(255, 255, 255, 0.3);
-        background: rgba(255, 255, 255, 0.09);
-        transform: translateY(-2px);
-    }
-
-    .workflow-panel {
-        padding: 1rem;
-    }
-
-    .workflow-step {
+    .metric-card {
         height: 100%;
+        display: flex;
+        align-items: center;
+        gap: .85rem;
         padding: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 1.15rem;
-        background: rgba(255, 255, 255, 0.035);
-        transition:
-            transform 200ms ease,
-            border-color 200ms ease,
-            background 200ms ease;
+        border: 1px solid var(--bb-border);
+        border-radius: .95rem;
+        background: rgba(255,255,255,.035);
     }
 
-    .workflow-step:hover {
-        transform: translateY(-4px);
-        border-color: rgba(184, 255, 61, 0.32);
-        background: rgba(184, 255, 61, 0.055);
-    }
-
-    .step-number {
+    .metric-icon {
         display: grid;
-        width: 2.2rem;
-        height: 2.2rem;
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
         place-items: center;
-        margin-bottom: 0.8rem;
-        border-radius: 50%;
-        color: #101507;
-        background: var(--accent);
-        font-size: 0.8rem;
-        font-weight: 900;
+        border-radius: .75rem;
+        color: var(--bb-accent);
+        background: var(--bb-accent-soft);
     }
 
-    .section-label {
-        color: var(--accent);
-        font-size: 0.78rem;
-        font-weight: 800;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
+    .metric-value { display: block; font-size: 1.3rem; font-weight: 850; line-height: 1; }
+    .metric-label { display: block; margin-top: .25rem; color: var(--bb-muted); font-size: .75rem; }
+
+    .workflow-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: .5rem;
+        padding: .65rem;
     }
 
-    .library-header {
-        margin-bottom: 1.5rem;
+    .workflow-stage {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        min-width: 0;
+        padding: .75rem;
+        border: 1px solid transparent;
+        border-radius: .8rem;
+        background: rgba(255,255,255,.025);
     }
+
+    .workflow-stage:first-child { border-color: rgba(184,255,61,.25); background: var(--bb-accent-soft); }
+    .stage-number { color: var(--bb-accent); font-size: .7rem; font-weight: 900; }
+    .stage-title { display: block; font-size: .82rem; font-weight: 800; white-space: nowrap; }
+    .stage-copy { display: block; color: var(--bb-muted); font-size: .68rem; white-space: nowrap; }
+
+    .section-panel { padding: 1.1rem; }
+    .section-title { margin: 0; font-size: 1.1rem; font-weight: 800; }
+    .section-copy { margin: .3rem 0 0; color: var(--bb-muted); font-size: .82rem; }
+    .count-badge { border: 1px solid var(--bb-border); border-radius: 999px; padding: .42rem .7rem; color: var(--bb-muted); background: rgba(255,255,255,.035); font-size: .72rem; font-weight: 700; }
 
     .post-card {
         height: 100%;
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.11);
-        border-radius: 1.4rem;
-        background:
-            linear-gradient(
-                145deg,
-                rgba(255, 255, 255, 0.09),
-                rgba(255, 255, 255, 0.025)
-            );
-        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
-        transition:
-            transform 250ms ease,
-            border-color 250ms ease,
-            box-shadow 250ms ease;
+        border: 1px solid var(--bb-border);
+        border-radius: .95rem;
+        background: var(--bb-panel);
+        transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
     }
 
-    .post-card:hover {
-        transform: translateY(-8px);
-        border-color: rgba(184, 255, 61, 0.45);
-        box-shadow:
-            0 26px 55px rgba(0, 0, 0, 0.36),
-            0 0 30px rgba(184, 255, 61, 0.06);
-    }
+    .post-card:hover { transform: translateY(-4px); border-color: rgba(184,255,61,.32); box-shadow: 0 16px 35px rgba(0,0,0,.3); }
+    .post-image-wrap { position: relative; aspect-ratio: 16 / 8.5; overflow: hidden; background: #10141c; }
+    .post-image { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+    .post-card:hover .post-image { transform: scale(1.04); }
+    .post-image-wrap::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(7,9,13,.78)); pointer-events: none; }
+    .post-body { padding: 1rem; }
+    .post-date { color: var(--bb-muted); font-size: .72rem; }
+    .post-title { margin: .5rem 0 .75rem; color: #fff; font-size: 1rem; font-weight: 800; line-height: 1.35; }
+    .post-title:hover { color: var(--bb-accent); }
+    .open-post { color: var(--bb-accent); font-size: .78rem; font-weight: 800; text-decoration: none; }
+    .delete-post { border: 1px solid rgba(255,123,134,.22); border-radius: .65rem; padding: .38rem .58rem; color: var(--bb-danger); background: rgba(255,123,134,.08); font-size: .72rem; font-weight: 700; text-decoration: none; }
+    .delete-post:hover { color: #fff; background: rgba(255,123,134,.18); }
 
-    .post-image-wrap {
-        position: relative;
-        overflow: hidden;
-        aspect-ratio: 16 / 10;
-        background:
-            radial-gradient(
-                circle at 20% 20%,
-                rgba(184, 255, 61, 0.18),
-                transparent 45%
-            ),
-            #11151d;
-    }
-
-    .post-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 500ms ease;
-    }
-
-    .post-card:hover .post-image {
-        transform: scale(1.06);
-    }
-
-    .image-overlay {
-        position: absolute;
-        inset: 0;
-        background:
-            linear-gradient(
-                180deg,
-                transparent 35%,
-                rgba(6, 8, 12, 0.92) 100%
-            );
-    }
-
-    .card-content {
-        padding: 1.4rem;
-    }
-
-    .post-date {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        margin-bottom: 0.85rem;
-        color: var(--text-muted);
-        font-size: 0.82rem;
-    }
-
-    .post-title {
-        margin-bottom: 1rem;
-        color: #ffffff;
-        font-size: 1.3rem;
-        line-height: 1.3;
-        transition: color 200ms ease;
-    }
-
-    .post-title:hover {
-        color: var(--accent);
-    }
-
-    .post-status {
-        margin-bottom: 1.15rem;
-    }
-
-    .open-post {
-        color: var(--accent);
-        font-size: 0.88rem;
-        font-weight: 800;
-        text-decoration: none;
-    }
-
-    .open-post:hover {
-        color: #d8ff99;
-    }
-
-    .delete-post {
-        border: 1px solid rgba(220, 53, 69, 0.25);
-        border-radius: 999px;
-        padding: 0.5rem 0.8rem;
-        color: #ff909b;
-        background: var(--danger-soft);
-        font-size: 0.78rem;
-        font-weight: 700;
-        text-decoration: none;
-        transition:
-            transform 180ms ease,
-            background 180ms ease;
-    }
-
-    .delete-post:hover {
-        color: #ffffff;
-        background: rgba(220, 53, 69, 0.35);
-        transform: translateY(-2px);
-    }
-
-    .empty-state {
-        padding: 3.5rem 1.5rem;
-        text-align: center;
-    }
-
-    .empty-icon {
-        display: grid;
-        width: 5rem;
-        height: 5rem;
-        place-items: center;
-        margin: 0 auto 1.4rem;
-        border: 1px solid rgba(184, 255, 61, 0.24);
-        border-radius: 1.4rem;
-        color: var(--accent);
-        background: rgba(184, 255, 61, 0.07);
-        font-size: 2rem;
-        transform: rotate(-4deg);
-    }
-
-    @keyframes pageReveal {
-        from {
-            opacity: 0;
-            transform: translateY(18px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .reveal {
-        animation: pageReveal 700ms ease both;
-    }
-
-    .reveal-delay {
-        animation: pageReveal 700ms 120ms ease both;
-    }
+    .empty-state { padding: 3rem 1rem; text-align: center; }
+    .empty-icon { display: grid; width: 52px; height: 52px; place-items: center; margin: 0 auto 1rem; border-radius: .9rem; color: var(--bb-accent); background: var(--bb-accent-soft); font-size: 1.3rem; }
 
     @media (max-width: 991.98px) {
-        .hero-section {
-            margin-bottom: 2.75rem;
-        }
-
-        .hero-title {
-            max-width: 700px;
-        }
+        .workflow-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
-    @media (max-width: 767.98px) {
-        .page-shell {
-            padding-top: 1rem !important;
-            padding-bottom: 2rem !important;
-        }
-
-        .hero-section {
-            margin-bottom: 2.25rem;
-        }
-
-        .chrome-panel {
-            border-radius: 1.25rem;
-        }
-
-        .hero-title {
-            margin-bottom: 1.15rem;
-            font-size: clamp(2.35rem, 13vw, 3.8rem);
-            line-height: 1;
-        }
-
-        .hero-description {
-            margin-bottom: 1.35rem;
-            font-size: 0.98rem;
-        }
-
-        .card-content {
-            padding: 1.2rem;
-        }
-
-        .empty-state {
-            padding: 2.75rem 1.2rem;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-            scroll-behavior: auto !important;
-            animation-duration: 0.01ms !important;
-            transition-duration: 0.01ms !important;
-        }
+    @media (max-width: 575.98px) {
+        .studio-header { padding: 1rem; }
+        .workflow-strip { grid-template-columns: 1fr; }
+        .stage-copy { white-space: normal; }
     }
 </style>
+<style>
+    /* Light glossy theme override — functionality unchanged */
+    :root {
+        --bb-bg: #ece8df;
+        --bb-panel: rgba(239, 234, 222, .88);
+        --bb-panel-2: rgba(226, 234, 225, .9);
+        --bb-border: rgba(41, 52, 62, .14);
+        --bb-border-strong: rgba(41, 52, 62, .24);
+        --bb-text: #182126;
+        --bb-muted: #667177;
+        --bb-accent: #6e8f2d;
+        --bb-accent-soft: rgba(149, 184, 74, .18);
+        --bb-danger: #a94d58;
+        --bb-shadow: 0 20px 55px rgba(42, 48, 53, .14);
+    }
 
-<main class="blog-home">
-    <div class="container page-shell py-4 py-lg-5">
+    .studio-dashboard {
+        color: var(--bb-text);
+        background:
+            radial-gradient(circle at 5% 4%, rgba(221, 177, 88, .36), transparent 24rem),
+            radial-gradient(circle at 95% 10%, rgba(95, 147, 151, .30), transparent 28rem),
+            radial-gradient(circle at 75% 90%, rgba(103, 77, 132, .18), transparent 28rem),
+            linear-gradient(145deg, #ebe6dc 0%, #dfe8df 47%, #e8e1d5 100%);
+    }
 
-        <!-- Hero -->
-        <section class="chrome-panel hero-section p-4 p-lg-5 reveal">
-            <div class="row align-items-center g-4 g-lg-5">
+    .studio-panel {
+        position: relative;
+        overflow: hidden;
+        border-color: rgba(44, 59, 66, .16);
+        background:
+            linear-gradient(135deg, rgba(247, 241, 229, .92), rgba(218, 228, 221, .78));
+        box-shadow:
+            0 24px 60px rgba(48, 59, 64, .14),
+            inset 0 1px 0 rgba(255,255,255,.65),
+            inset 0 -1px 0 rgba(59, 77, 83, .06);
+        backdrop-filter: blur(24px) saturate(145%);
+    }
 
-                <div class="col-lg-8">
-                    <span class="eyebrow mb-3 mb-lg-4">
-                        <i class="bi bi-stars"></i>
-                        Basketball Knowledge Studio
-                    </span>
+    .studio-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            linear-gradient(115deg, rgba(255,255,255,.48), transparent 28%, transparent 70%, rgba(68, 91, 96, .08)),
+            radial-gradient(circle at 15% 0%, rgba(255,255,255,.42), transparent 18rem);
+    }
 
-                    <h1 class="hero-title">
-                        Turn basketball lessons into
-                        <span class="chrome-text">
-                            clear, powerful stories.
-                        </span>
-                    </h1>
+    .studio-panel > * { position: relative; z-index: 1; }
+    .studio-kicker, .section-kicker, .stage-number, .open-post { color: #5d7e2c; }
+    .studio-title, .section-title, .metric-value { color: #192328; }
+    .studio-description, .section-copy, .metric-label, .stage-copy, .post-date { color: #68747a; }
 
-                    <p class="hero-description">
-                        Begin with a lesson, uncover the strongest topic,
-                        answer the five questions that complete the message,
-                        and transform your basketball knowledge into a focused article.
-                    </p>
+    .studio-action-primary {
+        border-color: #2e4a42;
+        color: #edf0e7;
+        background: linear-gradient(135deg, #263e3a, #4f6b50 58%, #809d48);
+        box-shadow: 0 10px 24px rgba(46, 74, 66, .25), inset 0 1px 0 rgba(255,255,255,.24);
+    }
+    .studio-action-primary:hover { color: #f1f0e8; background: linear-gradient(135deg, #1f3532, #587557 58%, #91ad55); }
+    .studio-action-secondary { color: #26363b; background: rgba(229, 224, 211, .65); }
+    .studio-action-secondary:hover { color: #172126; background: rgba(214, 223, 215, .92); border-color: rgba(49, 70, 76, .28); }
 
-                    <div class="d-flex flex-wrap gap-2 gap-md-3">
-                        <a
-                            href="{% url 'create_post' %}"
-                            class="btn primary-action"
-                        >
-                            <i class="bi bi-plus-circle me-2"></i>
-                            Create New Lesson
+    .metric-card {
+        position: relative;
+        overflow: hidden;
+        border-color: rgba(45, 61, 67, .14);
+        background: linear-gradient(145deg, rgba(240,235,223,.92), rgba(217,226,218,.78));
+        box-shadow: 0 12px 30px rgba(50, 62, 67, .10), inset 0 1px 0 rgba(255,255,255,.58);
+    }
+    .metric-card:nth-child(1n) .metric-icon { color: #4e6a37; background: linear-gradient(145deg, rgba(167,196,102,.28), rgba(113,147,74,.14)); }
+    .row > div:nth-child(2) .metric-icon { color: #326d73; background: linear-gradient(145deg, rgba(103,174,178,.24), rgba(66,117,125,.13)); }
+    .row > div:nth-child(3) .metric-icon { color: #8a5a25; background: linear-gradient(145deg, rgba(218,166,89,.28), rgba(169,104,41,.12)); }
+    .row > div:nth-child(4) .metric-icon { color: #5e496f; background: linear-gradient(145deg, rgba(155,123,176,.24), rgba(93,68,112,.13)); }
+
+    .workflow-stage { background: rgba(224, 226, 215, .58); border-color: rgba(56, 72, 76, .08); }
+    .workflow-stage:first-child { border-color: rgba(91,126,44,.30); background: linear-gradient(135deg, rgba(185,207,131,.28), rgba(222,228,205,.72)); }
+
+    .post-card {
+        border-color: rgba(41, 55, 61, .15);
+        background: linear-gradient(155deg, rgba(239,234,221,.98), rgba(213,224,215,.9));
+        box-shadow: 0 14px 34px rgba(43, 56, 61, .12), inset 0 1px 0 rgba(255,255,255,.62);
+    }
+    .post-card:hover { border-color: rgba(72, 106, 54, .42); box-shadow: 0 22px 45px rgba(43,56,61,.17); }
+    .post-image-wrap { background: #31423f; }
+    .post-image-wrap::after { background: linear-gradient(180deg, transparent 38%, rgba(35,50,49,.78)); }
+    .post-title { color: #1d292d; }
+    .post-title:hover { color: #56762c; }
+    .delete-post { color: #934852; background: rgba(169,77,88,.08); border-color: rgba(169,77,88,.22); }
+    .delete-post:hover { color: #f0ebe3; background: #934852; }
+    .count-badge { color: #59666c; background: rgba(226, 222, 210, .74); }
+</style>
+
+
+<main class="studio-dashboard">
+    <div class="container-fluid studio-shell px-3 px-lg-4 py-3 py-lg-4">
+
+        <header class="studio-panel studio-header mb-3">
+            <div class="row align-items-center g-3">
+                <div class="col-xl-7">
+                    <p class="studio-kicker">Basketball Knowledge Studio</p>
+                    <h1 class="studio-title">Article Production Dashboard</h1>
+                    <p class="studio-description">Create a lesson, shape its strongest message, and manage every generated basketball article from one focused workspace.</p>
+                </div>
+                <div class="col-xl-5">
+                    <div class="d-flex flex-column flex-sm-row justify-content-xl-end gap-2">
+                        <a href="{% url 'create_post' %}" class="studio-action studio-action-primary">
+                            <i class="bi bi-plus-circle"></i> Create New Lesson
                         </a>
-
-                        <a
-                            href="#blog-library"
-                            class="btn secondary-action"
-                        >
-                            <i class="bi bi-journal-richtext me-2"></i>
-                            Explore Articles
+                        <a href="#blog-library" class="studio-action studio-action-secondary">
+                            <i class="bi bi-journals"></i> View Article Library
                         </a>
                     </div>
                 </div>
+            </div>
+        </header>
 
-                <div class="col-lg-4">
-                    <div class="chrome-panel workflow-panel">
-                        <div class="row g-2 g-md-3">
-
-                            <div class="col-6">
-                                <div class="workflow-step">
-                                    <span class="step-number">01</span>
-
-                                    <strong class="d-block mb-1">
-                                        Lesson
-                                    </strong>
-
-                                    <small class="text-secondary">
-                                        Start with the idea.
-                                    </small>
-                                </div>
-                            </div>
-
-                            <div class="col-6">
-                                <div class="workflow-step">
-                                    <span class="step-number">02</span>
-
-                                    <strong class="d-block mb-1">
-                                        Topic
-                                    </strong>
-
-                                    <small class="text-secondary">
-                                        Find the angle.
-                                    </small>
-                                </div>
-                            </div>
-
-                            <div class="col-6">
-                                <div class="workflow-step">
-                                    <span class="step-number">03</span>
-
-                                    <strong class="d-block mb-1">
-                                        Questions
-                                    </strong>
-
-                                    <small class="text-secondary">
-                                        Fill every gap.
-                                    </small>
-                                </div>
-                            </div>
-
-                            <div class="col-6">
-                                <div class="workflow-step">
-                                    <span class="step-number">04</span>
-
-                                    <strong class="d-block mb-1">
-                                        Article
-                                    </strong>
-
-                                    <small class="text-secondary">
-                                        Build the lesson.
-                                    </small>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
+        <section class="row g-3 mb-3">
+            <div class="col-6 col-xl-3">
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="bi bi-journal-richtext"></i></div>
+                    <div><strong class="metric-value">{{ posts|length }}</strong><span class="metric-label">Articles in library</span></div>
                 </div>
-
+            </div>
+            <div class="col-6 col-xl-3">
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="bi bi-diagram-3"></i></div>
+                    <div><strong class="metric-value">04</strong><span class="metric-label">Production stages</span></div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-3">
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="bi bi-ui-checks"></i></div>
+                    <div><strong class="metric-value">05</strong><span class="metric-label">Clarifying questions</span></div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-3">
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="bi bi-lightning-charge"></i></div>
+                    <div><strong class="metric-value">AI</strong><span class="metric-label">Article generation</span></div>
+                </div>
             </div>
         </section>
 
-        <!-- Library Header -->
-        <section
-            id="blog-library"
-            class="library-header reveal-delay"
-        >
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
+        <section class="studio-panel workflow-strip mb-3" aria-label="Article workflow">
+            <div class="workflow-stage"><span class="stage-number">01</span><span><strong class="stage-title">Lesson</strong><small class="stage-copy">Define the principle</small></span></div>
+            <div class="workflow-stage"><span class="stage-number">02</span><span><strong class="stage-title">Topic</strong><small class="stage-copy">Choose the angle</small></span></div>
+            <div class="workflow-stage"><span class="stage-number">03</span><span><strong class="stage-title">Questions</strong><small class="stage-copy">Complete the message</small></span></div>
+            <div class="workflow-stage"><span class="stage-number">04</span><span><strong class="stage-title">Article</strong><small class="stage-copy">Generate the final lesson</small></span></div>
+        </section>
 
+        <section id="blog-library" class="studio-panel section-panel">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
                 <div>
-                    <p class="section-label mb-2">
-                        Knowledge Library
-                    </p>
-
-                    <h2 class="fw-bold mb-1">
-                        Your Basketball Articles
-                    </h2>
-
-                    <p class="text-secondary mb-0">
-                        Review, refine, and continue building your basketball philosophy.
-                    </p>
+                    <p class="section-kicker">Knowledge Library</p>
+                    <h2 class="section-title">Your Basketball Articles</h2>
+                    <p class="section-copy">Open, review, and manage completed or in-progress lessons.</p>
                 </div>
-
                 {% if posts %}
-                    <span class="badge rounded-pill border border-secondary-subtle bg-dark px-3 py-2">
-                        {{ posts|length }}
-                        article{{ posts|length|pluralize }}
-                    </span>
+                    <span class="count-badge">{{ posts|length }} article{{ posts|length|pluralize }}</span>
                 {% endif %}
-
             </div>
-        </section>
 
-        <!-- Blog Cards -->
-        {% if posts %}
-
-            <section class="row g-3 g-lg-4 pb-4 pb-lg-5">
-
-                {% for post in posts %}
-
-                    <div class="col-md-6 col-xl-4">
-                        <article class="post-card">
-
-                            <div class="post-image-wrap">
-
-                                {% if post.statsheet %}
-                                    <img
-                                        src="{{ post.statsheet.url }}"
-                                        class="post-image"
-                                        alt="{{ post.name }} statsheet"
-                                        loading="lazy"
-                                    >
-                                {% else %}
-                                    <div class="d-flex h-100 align-items-center justify-content-center">
-                                        <i class="bi bi-basketball display-3 text-secondary"></i>
-                                    </div>
-                                {% endif %}
-
-                                <div class="image-overlay"></div>
-
-                            </div>
-
-                            <div class="card-content">
-
-                                <div class="post-date">
-                                    <i class="bi bi-calendar3"></i>
-
-                                    {% if post.date %}
-                                        {{ post.date|date:"F j, Y" }}
+            {% if posts %}
+                <div class="row g-3">
+                    {% for post in posts %}
+                        <div class="col-md-6 col-xl-4">
+                            <article class="post-card">
+                                <div class="post-image-wrap">
+                                    {% if post.statsheet %}
+                                        <img src="{{ post.statsheet.url }}" class="post-image" alt="{{ post.name }} statsheet" loading="lazy">
                                     {% else %}
-                                        Draft article
+                                        <div class="d-flex h-100 align-items-center justify-content-center"><i class="bi bi-basketball display-5 text-secondary"></i></div>
                                     {% endif %}
                                 </div>
-
-                                <a
-                                    href="{% url 'post_details' post.id %}"
-                                    class="text-decoration-none"
-                                >
-                                    <h3 class="post-title fw-bold">
-                                        {{ post.name }}
-                                    </h3>
-                                </a>
-
-                                {% if post.generation_status %}
-
-                                    <div class="post-status">
-
-                                        {% if post.generation_status == "completed" %}
-
-                                            <span class="badge rounded-pill text-bg-success">
-                                                <i class="bi bi-check-circle me-1"></i>
-                                                Generated
-                                            </span>
-
-                                        {% elif post.generation_status == "failed" %}
-
-                                            <span class="badge rounded-pill text-bg-danger">
-                                                <i class="bi bi-exclamation-circle me-1"></i>
-                                                Generation failed
-                                            </span>
-
-                                        {% else %}
-
-                                            <span class="badge rounded-pill text-bg-warning">
-                                                <i class="bi bi-hourglass-split me-1"></i>
-                                                In progress
-                                            </span>
-
+                                <div class="post-body">
+                                    <div class="d-flex justify-content-between align-items-center gap-2">
+                                        <span class="post-date"><i class="bi bi-calendar3 me-1"></i>{% if post.date %}{{ post.date|date:"F j, Y" }}{% else %}Draft article{% endif %}</span>
+                                        {% if post.generation_status %}
+                                            {% if post.generation_status == "completed" %}
+                                                <span class="badge rounded-pill text-bg-success">Generated</span>
+                                            {% elif post.generation_status == "failed" %}
+                                                <span class="badge rounded-pill text-bg-danger">Failed</span>
+                                            {% else %}
+                                                <span class="badge rounded-pill text-bg-warning">In progress</span>
+                                            {% endif %}
                                         {% endif %}
-
                                     </div>
-
-                                {% endif %}
-
-                                <div class="d-flex align-items-center justify-content-between gap-3">
-
-                                    <a
-                                        href="{% url 'post_details' post.id %}"
-                                        class="open-post"
-                                    >
-                                        Open article
-                                        <i class="bi bi-arrow-up-right ms-1"></i>
-                                    </a>
-
-                                    <a
-                                        href="{% url 'delete_post' post.id %}"
-                                        class="delete-post"
-                                        aria-label="Delete {{ post.name }}"
-                                    >
-                                        <i class="bi bi-trash3 me-1"></i>
-                                        Delete
-                                    </a>
-
+                                    <a href="{% url 'post_details' post.id %}" class="text-decoration-none"><h3 class="post-title">{{ post.name }}</h3></a>
+                                    <div class="d-flex align-items-center justify-content-between gap-3">
+                                        <a href="{% url 'post_details' post.id %}" class="open-post">Open article <i class="bi bi-arrow-up-right ms-1"></i></a>
+                                        <a href="{% url 'delete_post' post.id %}" class="delete-post" aria-label="Delete {{ post.name }}"><i class="bi bi-trash3 me-1"></i>Delete</a>
+                                    </div>
                                 </div>
-
-                            </div>
-
-                        </article>
-                    </div>
-
-                {% endfor %}
-
-            </section>
-
-        {% else %}
-
-            <!-- Empty State -->
-            <section class="chrome-panel empty-state mb-4 mb-lg-5">
-
-                <div class="empty-icon">
-                    <i class="bi bi-journal-plus"></i>
+                            </article>
+                        </div>
+                    {% endfor %}
                 </div>
-
-                <p class="section-label mb-2">
-                    Your library is empty
-                </p>
-
-                <h2 class="fw-bold mb-3">
-                    Your first lesson starts here.
-                </h2>
-
-                <p
-                    class="text-secondary mx-auto mb-4"
-                    style="max-width: 560px;"
-                >
-                    Add a basketball lesson description, generate
-                    thought-provoking topics, answer the five defining
-                    questions, and publish your first complete article.
-                </p>
-
-                <a
-                    href="{% url 'create_post' %}"
-                    class="btn primary-action"
-                >
-                    <i class="bi bi-lightning-charge-fill me-2"></i>
-                    Build Your First Article
-                </a>
-
-            </section>
-
-        {% endif %}
-
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="bi bi-journal-plus"></i></div>
+                    <p class="section-kicker">Your library is empty</p>
+                    <h2 class="section-title mb-2">Build your first basketball lesson.</h2>
+                    <p class="section-copy mx-auto mb-3" style="max-width: 540px;">Start with one principle. The workflow will help you select a topic, answer five questions, and generate a complete article.</p>
+                    <a href="{% url 'create_post' %}" class="studio-action studio-action-primary"><i class="bi bi-lightning-charge-fill"></i> Build First Article</a>
+                </div>
+            {% endif %}
+        </section>
     </div>
 </main>
-
 {% endblock %}

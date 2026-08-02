@@ -3,35 +3,615 @@
 {% block title %}Select a Topic{% endblock %}
 
 {% block content %}
-    <h1>Select a Blog Topic</h1>
 
-    <p>{{ topic_request.lesson_description }}</p>
+<style>
+    :root {
+        --studio-bg: #e8e1d5;
+        --studio-border: rgba(48, 71, 67, 0.16);
+        --studio-text: #24312f;
+        --studio-muted: #66716d;
+        --studio-dark: #173f3a;
+        --studio-green: #2f7467;
+        --studio-lime: #a6c96a;
+        --studio-amber: #d99a52;
+        --studio-purple: #71678d;
+        --studio-pink: #bd6e7d;
+        --studio-shadow:
+            0 24px 60px rgba(48, 58, 53, 0.14),
+            inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
 
-    {% for generated_topic in generated_topics %}
-        <article>
-            <h2>{{ generated_topic.topic }}</h2>
-            <p>{{ generated_topic.principle }}</p>
+    body {
+        background: var(--studio-bg);
+    }
 
-            <form method="post">
-                {% csrf_token %}
+    .select-topic-page {
+        position: relative;
+        min-height: calc(100vh - 70px);
+        overflow: hidden;
+        padding: 3rem 1.5rem 5rem;
+        color: var(--studio-text);
+        background:
+            radial-gradient(circle at 6% 8%, rgba(166, 201, 106, 0.46), transparent 24rem),
+            radial-gradient(circle at 95% 15%, rgba(113, 103, 141, 0.34), transparent 28rem),
+            radial-gradient(circle at 76% 90%, rgba(217, 154, 82, 0.3), transparent 27rem),
+            radial-gradient(circle at 25% 78%, rgba(189, 110, 125, 0.16), transparent 24rem),
+            linear-gradient(145deg, #e2d8c7 0%, #d8e1d4 48%, #ded4df 100%);
+    }
 
-                <input
-                    type="hidden"
-                    name="topic_index"
-                    value="{{ forloop.counter0 }}"
-                >
+    .select-topic-page::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.24;
+        background-image:
+            linear-gradient(rgba(23, 63, 58, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(23, 63, 58, 0.05) 1px, transparent 1px);
+        background-size: 44px 44px;
+    }
 
-                <button type="submit">
-                    Select this topic
-                </button>
-            </form>
-        </article>
-        <hr>
-    {% empty %}
-        <p>No generated topics are available.</p>
+    .select-topic-shell {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 1080px;
+        margin-inline: auto;
+    }
 
-        {% if topic_request.generation_error %}
-            <p>{{ topic_request.generation_error }}</p>
-        {% endif %}
-    {% endfor %}
+    .gloss-panel {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--studio-border);
+        border-radius: 1.75rem;
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255, 252, 244, 0.76),
+                rgba(222, 229, 216, 0.6)
+            );
+        box-shadow: var(--studio-shadow);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+    }
+
+    .gloss-panel::before {
+        content: "";
+        position: absolute;
+        top: -78%;
+        left: -25%;
+        width: 48%;
+        height: 245%;
+        transform: rotate(20deg);
+        pointer-events: none;
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.48),
+                transparent
+            );
+    }
+
+    .page-header {
+        padding: 1.6rem 1.8rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .page-kicker,
+    .section-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin: 0 0 0.55rem;
+        color: var(--studio-green);
+        font-size: 0.74rem;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .page-title {
+        margin: 0 0 0.55rem;
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        font-weight: 850;
+        line-height: 1;
+        letter-spacing: -0.05em;
+    }
+
+    .page-description {
+        max-width: 690px;
+        margin: 0;
+        color: var(--studio-muted);
+        font-size: 0.94rem;
+        line-height: 1.65;
+    }
+
+    .step-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.65rem 0.9rem;
+        border: 1px solid rgba(113, 103, 141, 0.2);
+        border-radius: 999px;
+        color: var(--studio-purple);
+        background: rgba(113, 103, 141, 0.13);
+        font-size: 0.76rem;
+        font-weight: 800;
+    }
+
+    .step-indicator span {
+        display: grid;
+        width: 1.8rem;
+        height: 1.8rem;
+        place-items: center;
+        border-radius: 50%;
+        color: #f4eee7;
+        background:
+            linear-gradient(
+                145deg,
+                var(--studio-purple),
+                var(--studio-pink)
+            );
+        box-shadow:
+            0 8px 18px rgba(113, 103, 141, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        font-size: 0.72rem;
+    }
+
+    .lesson-panel,
+    .topics-panel {
+        padding: 1.45rem;
+    }
+
+    .lesson-panel {
+        margin-bottom: 1rem;
+    }
+
+    .panel-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.9rem;
+        border-bottom: 1px solid rgba(48, 71, 67, 0.12);
+    }
+
+    .section-title {
+        margin: 0;
+        color: var(--studio-text);
+        font-size: 1.08rem;
+        font-weight: 850;
+    }
+
+    .section-copy {
+        margin: 0.3rem 0 0;
+        color: var(--studio-muted);
+        font-size: 0.82rem;
+        line-height: 1.55;
+    }
+
+    .section-icon {
+        display: grid;
+        width: 2.8rem;
+        height: 2.8rem;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 0.9rem;
+        color: #eef2e9;
+        background:
+            linear-gradient(
+                145deg,
+                var(--studio-green),
+                var(--studio-dark)
+            );
+        box-shadow:
+            0 10px 24px rgba(23, 63, 58, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .lesson-content {
+        margin: 0;
+        padding: 1rem 1.05rem;
+        border: 1px solid rgba(48, 71, 67, 0.12);
+        border-radius: 1rem;
+        color: var(--studio-text);
+        background: rgba(238, 233, 221, 0.62);
+        font-size: 0.9rem;
+        line-height: 1.7;
+    }
+
+    .topic-grid {
+        display: grid;
+        gap: 0.9rem;
+    }
+
+    .topic-card {
+        position: relative;
+        padding: 1.1rem;
+        border: 1px solid rgba(48, 71, 67, 0.13);
+        border-radius: 1.15rem;
+        background: rgba(238, 233, 221, 0.66);
+        transition:
+            transform 180ms ease,
+            border-color 180ms ease,
+            box-shadow 180ms ease,
+            background 180ms ease;
+    }
+
+    .topic-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(47, 116, 103, 0.42);
+        background:
+            linear-gradient(
+                145deg,
+                rgba(166, 201, 106, 0.23),
+                rgba(113, 103, 141, 0.09)
+            );
+        box-shadow:
+            0 14px 30px rgba(48, 58, 53, 0.11),
+            inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
+
+    .topic-card-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.9rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .topic-number {
+        display: grid;
+        width: 2.55rem;
+        height: 2.55rem;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 0.85rem;
+        color: #f4eee7;
+        background:
+            linear-gradient(
+                145deg,
+                var(--studio-purple),
+                var(--studio-pink)
+            );
+        box-shadow:
+            0 9px 20px rgba(113, 103, 141, 0.18),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        font-size: 0.76rem;
+        font-weight: 900;
+    }
+
+    .topic-label {
+        display: block;
+        margin-bottom: 0.18rem;
+        color: var(--studio-muted);
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .topic-title {
+        margin: 0;
+        color: var(--studio-text);
+        font-size: 1rem;
+        font-weight: 850;
+        line-height: 1.35;
+    }
+
+    .topic-principle {
+        margin: 0 0 0.95rem;
+        color: var(--studio-muted);
+        font-size: 0.83rem;
+        line-height: 1.6;
+    }
+
+    .topic-form {
+        display: flex;
+        justify-content: flex-end;
+        margin: 0;
+        padding-top: 0.85rem;
+        border-top: 1px solid rgba(48, 71, 67, 0.1);
+    }
+
+    .select-button {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 44px;
+        overflow: hidden;
+        border: 0;
+        border-radius: 0.9rem;
+        padding: 0.72rem 1rem;
+        color: #eef2e9;
+        background:
+            linear-gradient(
+                135deg,
+                var(--studio-green),
+                var(--studio-dark)
+            );
+        box-shadow:
+            0 12px 26px rgba(23, 63, 58, 0.22),
+            inset 0 1px 0 rgba(255, 255, 255, 0.28);
+        font-size: 0.8rem;
+        font-weight: 850;
+        transition:
+            transform 180ms ease,
+            box-shadow 180ms ease;
+    }
+
+    .select-button::after {
+        content: "";
+        position: absolute;
+        top: -70%;
+        left: -45%;
+        width: 24%;
+        height: 240%;
+        transform: rotate(18deg);
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.68),
+                transparent
+            );
+        transition: left 520ms ease;
+    }
+
+    .select-button:hover {
+        color: #eef2e9;
+        transform: translateY(-2px);
+        box-shadow:
+            0 16px 32px rgba(23, 63, 58, 0.28),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .select-button:hover::after {
+        left: 125%;
+    }
+
+    .empty-state {
+        padding: 2.5rem 1rem;
+        text-align: center;
+    }
+
+    .empty-icon {
+        display: grid;
+        width: 3.7rem;
+        height: 3.7rem;
+        place-items: center;
+        margin: 0 auto 0.9rem;
+        border-radius: 1rem;
+        color: #f4eee7;
+        background:
+            linear-gradient(
+                145deg,
+                var(--studio-amber),
+                var(--studio-pink)
+            );
+        box-shadow:
+            0 12px 26px rgba(189, 110, 125, 0.18),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        font-size: 1.25rem;
+    }
+
+    .empty-title {
+        margin-bottom: 0.35rem;
+        font-size: 1rem;
+        font-weight: 850;
+    }
+
+    .empty-copy {
+        margin: 0;
+        color: var(--studio-muted);
+        font-size: 0.82rem;
+    }
+
+    .error-panel {
+        margin-top: 1rem;
+        padding: 0.9rem 1rem;
+        border: 1px solid rgba(189, 110, 125, 0.28);
+        border-radius: 1rem;
+        color: #93495a;
+        background: rgba(189, 110, 125, 0.11);
+        font-size: 0.8rem;
+        line-height: 1.55;
+        text-align: left;
+    }
+
+    @media (max-width: 767.98px) {
+        .select-topic-page {
+            padding: 1.25rem 0.85rem 3rem;
+        }
+
+        .page-header,
+        .lesson-panel,
+        .topics-panel {
+            padding: 1.2rem;
+        }
+
+        .page-title {
+            font-size: clamp(2.1rem, 12vw, 3.4rem);
+        }
+
+        .topic-form {
+            justify-content: stretch;
+        }
+
+        .select-button {
+            width: 100%;
+        }
+
+        .gloss-panel {
+            border-radius: 1.3rem;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+</style>
+
+<main class="select-topic-page">
+    <div class="select-topic-shell">
+
+        <header class="gloss-panel page-header">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3">
+
+                <div>
+                    <p class="page-kicker">
+                        <i class="bi bi-signpost-split"></i>
+                        Topic Selection
+                    </p>
+
+                    <h1 class="page-title">
+                        Select the best blog topic.
+                    </h1>
+
+                    <p class="page-description">
+                        Compare each topic and its central principle, then choose the
+                        direction that should move forward into the question stage.
+                    </p>
+                </div>
+
+                <div class="step-indicator">
+                    <span>02</span>
+                    Select a topic
+                </div>
+
+            </div>
+        </header>
+
+        <section class="gloss-panel lesson-panel">
+            <div class="panel-heading">
+
+                <div>
+                    <p class="section-kicker">
+                        Original Lesson
+                    </p>
+
+                    <h2 class="section-title">
+                        Lesson Description
+                    </h2>
+
+                    <p class="section-copy">
+                        Use the original lesson as the standard for comparing each topic.
+                    </p>
+                </div>
+
+                <div class="section-icon">
+                    <i class="bi bi-journal-text"></i>
+                </div>
+
+            </div>
+
+            <p class="lesson-content">
+                {{ topic_request.lesson_description }}
+            </p>
+        </section>
+
+        <section class="gloss-panel topics-panel">
+            <div class="panel-heading">
+
+                <div>
+                    <p class="section-kicker">
+                        Generated Directions
+                    </p>
+
+                    <h2 class="section-title">
+                        Available Topics
+                    </h2>
+
+                    <p class="section-copy">
+                        Review the teaching angle and principle before making your selection.
+                    </p>
+                </div>
+
+                <div class="section-icon">
+                    <i class="bi bi-stars"></i>
+                </div>
+
+            </div>
+
+            <div class="topic-grid">
+                {% for generated_topic in generated_topics %}
+                    <article class="topic-card">
+
+                        <div class="topic-card-header">
+                            <span class="topic-number">
+                                {{ forloop.counter|stringformat:"02d" }}
+                            </span>
+
+                            <div>
+                                <span class="topic-label">
+                                    Topic option
+                                </span>
+
+                                <h2 class="topic-title">
+                                    {{ generated_topic.topic }}
+                                </h2>
+                            </div>
+                        </div>
+
+                        <p class="topic-principle">
+                            {{ generated_topic.principle }}
+                        </p>
+
+                        <form method="post" class="topic-form">
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="topic_index"
+                                value="{{ forloop.counter0 }}"
+                            >
+
+                            <button type="submit" class="select-button">
+                                <i class="bi bi-check2-circle"></i>
+                                Select this topic
+                            </button>
+                        </form>
+
+                    </article>
+                {% empty %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="bi bi-lightbulb-off"></i>
+                        </div>
+
+                        <h3 class="empty-title">
+                            No generated topics are available.
+                        </h3>
+
+                        <p class="empty-copy">
+                            Add more detail to the lesson and generate the topic options again.
+                        </p>
+
+                        {% if topic_request.generation_error %}
+                            <div class="error-panel">
+                                <strong class="d-block mb-1">
+                                    Generation error
+                                </strong>
+
+                                {{ topic_request.generation_error }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+</main>
+
 {% endblock %}
+

@@ -2,480 +2,265 @@
 
 {% block title %}Basketball Intelligence Lab{% endblock %}
 
-{% block nav %} <div class="d-flex align-items-center gap-2"> <a
-         href="{% url 'blog:create_topic' %}"
-         class="btn dashboard-btn dashboard-btn-primary"
-     > <i class="bi bi-plus-lg"></i>
-New Investigation </a>
-
-
-    <a
-        href="{% url 'blog:blog_list' %}"
-        class="btn dashboard-btn dashboard-btn-secondary"
-    >
-        <i class="bi bi-collection"></i>
-        Library
-    </a>
+{% block nav %}
+<div class="d-flex align-items-center gap-2">
+    <a href="{% url 'blog:create_topic' %}" class="btn dashboard-btn dashboard-btn-primary"><i class="bi bi-plus-lg"></i> New Investigation</a>
+    <a href="{% url 'blog:blog_list' %}" class="btn dashboard-btn dashboard-btn-secondary"><i class="bi bi-collection"></i> Library</a>
 </div>
-
-
 {% endblock %}
 
 {% block content %}
+<style>
+    :root {
+        --lab-bg-a: #e7dfd1;
+        --lab-bg-b: #dbe5da;
+        --lab-bg-c: #ded5e3;
+        --lab-panel: rgba(241, 236, 224, .72);
+        --lab-panel-strong: rgba(232, 226, 213, .92);
+        --lab-border: rgba(38, 68, 63, .15);
+        --lab-border-strong: rgba(38, 68, 63, .24);
+        --lab-text: #263532;
+        --lab-muted: #68746f;
+        --lab-dark: #173f3a;
+        --lab-green: #2f7467;
+        --lab-lime: #abc96e;
+        --lab-amber: #d89a55;
+        --lab-violet: #756a91;
+        --lab-rose: #bd7480;
+        --lab-radius: 1.55rem;
+        --lab-shadow: 0 24px 60px rgba(54, 68, 61, .15), inset 0 1px 0 rgba(255,255,255,.68);
+    }
+
+    .lab-dashboard {
+        position: relative;
+        min-height: 100vh;
+        overflow: hidden;
+        padding: 3rem 1.25rem 5rem;
+        color: var(--lab-text);
+        background:
+            radial-gradient(circle at 7% 4%, rgba(171,201,110,.48), transparent 24rem),
+            radial-gradient(circle at 94% 14%, rgba(117,106,145,.34), transparent 27rem),
+            radial-gradient(circle at 72% 88%, rgba(216,154,85,.30), transparent 25rem),
+            linear-gradient(145deg, var(--lab-bg-a), var(--lab-bg-b) 48%, var(--lab-bg-c));
+    }
+
+    .lab-dashboard::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: .24;
+        background-image:
+            linear-gradient(rgba(23,63,58,.045) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(23,63,58,.045) 1px, transparent 1px);
+        background-size: 42px 42px;
+    }
+
+    .dashboard-shell {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 1180px;
+        margin-inline: auto;
+    }
+
+    .lab-panel {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--lab-border);
+        border-radius: var(--lab-radius);
+        background: linear-gradient(145deg, rgba(248,243,233,.78), rgba(223,231,220,.58));
+        box-shadow: var(--lab-shadow);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+    }
+
+    .lab-panel::before {
+        content: "";
+        position: absolute;
+        top: -75%;
+        left: -28%;
+        width: 52%;
+        height: 230%;
+        transform: rotate(20deg);
+        pointer-events: none;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.46), transparent);
+    }
+
+    .dashboard-header { padding: 1.6rem 1.8rem; margin-bottom: 1.25rem; }
+    .dashboard-brand-icon { display: grid; flex: 0 0 50px; width: 50px; height: 50px; place-items: center; border-radius: 1rem; color: #eef2e9; background: linear-gradient(145deg, var(--lab-green), var(--lab-dark)); box-shadow: 0 12px 26px rgba(23,63,58,.23), inset 0 1px 0 rgba(255,255,255,.28); font-size: 1.2rem; }
+    .dashboard-kicker, .section-kicker { margin: 0 0 .35rem; color: var(--lab-green); font-size: .72rem; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
+    .dashboard-title { margin: 0; font-size: clamp(1.8rem, 3vw, 2.7rem); font-weight: 850; letter-spacing: -.045em; }
+    .dashboard-description, .section-description { max-width: 650px; margin: .5rem 0 0; color: var(--lab-muted); font-size: .9rem; line-height: 1.58; }
+
+    .dashboard-action, .compact-link-button, .investigation-open-button, .workflow-start-button {
+        display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: .85rem; font-size: .82rem; font-weight: 850; text-decoration: none; transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+    .dashboard-action { min-height: 44px; padding: .7rem 1rem; }
+    .dashboard-action:hover, .compact-link-button:hover, .investigation-open-button:hover, .workflow-start-button:hover { transform: translateY(-2px); }
+    .dashboard-action-primary, .workflow-start-button { border: 1px solid var(--lab-dark); color: #eef2e9; background: linear-gradient(135deg, var(--lab-green), var(--lab-dark)); box-shadow: 0 12px 26px rgba(23,63,58,.20), inset 0 1px 0 rgba(255,255,255,.25); }
+    .dashboard-action-primary:hover, .workflow-start-button:hover { color: #eef2e9; box-shadow: 0 16px 32px rgba(23,63,58,.28), inset 0 1px 0 rgba(255,255,255,.3); }
+    .dashboard-action-secondary { border: 1px solid var(--lab-border-strong); color: var(--lab-dark); background: rgba(238,232,219,.58); }
+    .dashboard-action-secondary:hover { color: var(--lab-dark); background: rgba(229,222,208,.88); }
+
+    .metric-card { position: relative; overflow: hidden; height: 100%; display: flex; align-items: center; gap: .85rem; padding: 1rem; border: 1px solid var(--lab-border); border-radius: 1.15rem; background: linear-gradient(145deg, rgba(244,239,228,.76), rgba(225,232,220,.58)); box-shadow: 0 14px 30px rgba(54,68,61,.10), inset 0 1px 0 rgba(255,255,255,.62); }
+    .metric-card:nth-child(2) .metric-card-icon { color: #f4eee3; background: linear-gradient(145deg, var(--lab-violet), #504a67); }
+    .metric-card:nth-child(3) .metric-card-icon { color: #f4eee3; background: linear-gradient(145deg, var(--lab-amber), #aa6d36); }
+    .metric-card:nth-child(4) .metric-card-icon { color: #f4eee3; background: linear-gradient(145deg, var(--lab-rose), #8f4f5d); }
+    .metric-card-icon { display: grid; flex: 0 0 42px; width: 42px; height: 42px; place-items: center; border-radius: .8rem; color: #eef2e9; background: linear-gradient(145deg, var(--lab-green), var(--lab-dark)); box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
+    .metric-card-value { display: block; font-size: 1.35rem; font-weight: 850; line-height: 1; }
+    .metric-card-label { display: block; margin-top: .25rem; color: var(--lab-muted); font-size: .75rem; }
+
+    .dashboard-section, .workflow-panel { padding: 1.45rem; }
+    .dashboard-section-header, .workflow-panel-header { position: relative; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--lab-border); }
+    .section-title, .workflow-panel-title { margin: 0; font-size: 1.12rem; font-weight: 850; }
+    .compact-link-button { padding: .5rem .75rem; border: 1px solid var(--lab-border-strong); color: var(--lab-dark); background: rgba(238,232,219,.62); }
+    .compact-link-button:hover { color: var(--lab-dark); border-color: rgba(47,116,103,.35); background: rgba(229,222,208,.9); }
+
+    .investigation-list { display: grid; gap: .8rem; padding-top: 1rem; }
+    .investigation-item { display: grid; grid-template-columns: 44px minmax(0,1fr); gap: .9rem; padding: 1rem; border: 1px solid var(--lab-border); border-radius: 1rem; background: rgba(238,232,219,.58); transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease; }
+    .investigation-item:hover { transform: translateY(-2px); border-color: rgba(47,116,103,.34); background: linear-gradient(145deg, rgba(171,201,110,.23), rgba(238,232,219,.76)); box-shadow: 0 14px 30px rgba(54,68,61,.10); }
+    .investigation-number { display: grid; width: 44px; height: 44px; place-items: center; border-radius: .8rem; color: #eef2e9; background: linear-gradient(145deg, var(--lab-green), var(--lab-dark)); font-size: .72rem; font-weight: 900; }
+    .investigation-heading-row, .investigation-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .investigation-label { color: var(--lab-muted); font-size: .66rem; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
+    .investigation-title { margin: .15rem 0 0; font-size: 1rem; font-weight: 850; }
+    .investigation-status, .workflow-system-status { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid rgba(47,116,103,.22); border-radius: 999px; padding: .35rem .58rem; color: var(--lab-green); background: rgba(171,201,110,.25); font-size: .66rem; font-weight: 850; }
+    .investigation-description { margin: .5rem 0 .75rem; color: var(--lab-muted); font-size: .78rem; line-height: 1.5; }
+    .investigation-meta { color: var(--lab-muted); font-size: .7rem; }
+    .investigation-open-button { padding: .47rem .7rem; color: #eef2e9; background: linear-gradient(135deg, var(--lab-green), var(--lab-dark)); box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
+    .investigation-open-button:hover { color: #eef2e9; }
+
+    .workflow-list { display: grid; gap: .65rem; padding: 1rem 0; }
+    .workflow-item { display: grid; grid-template-columns: 30px minmax(0,1fr) 36px; align-items: center; gap: .75rem; padding: .78rem; border: 1px solid var(--lab-border); border-radius: .9rem; background: rgba(238,232,219,.58); }
+    .workflow-item:nth-child(2) .workflow-item-icon { color: #f4eee3; background: linear-gradient(145deg, var(--lab-violet), #504a67); }
+    .workflow-item:nth-child(3) .workflow-item-icon { color: #f4eee3; background: linear-gradient(145deg, var(--lab-amber), #aa6d36); }
+    .workflow-item:nth-child(4) .workflow-item-icon { color: #f4eee3; background: linear-gradient(145deg, var(--lab-rose), #8f4f5d); }
+    .workflow-item-number { color: var(--lab-green); font-size: .66rem; font-weight: 900; }
+    .workflow-item-title { margin: 0; font-size: .8rem; font-weight: 850; }
+    .workflow-item-description { margin: .18rem 0 0; color: var(--lab-muted); font-size: .68rem; line-height: 1.4; }
+    .workflow-item-icon { display: grid; width: 36px; height: 36px; place-items: center; border-radius: .7rem; color: #eef2e9; background: linear-gradient(145deg, var(--lab-green), var(--lab-dark)); box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
+
+    .workflow-progress-panel { margin-bottom: .9rem; padding: .9rem; border: 1px solid rgba(117,106,145,.20); border-radius: .9rem; background: linear-gradient(145deg, rgba(117,106,145,.15), rgba(171,201,110,.12)); }
+    .workflow-progress-heading { display: flex; justify-content: space-between; gap: 1rem; font-size: .72rem; }
+    .workflow-progress-track { height: 6px; margin: .65rem 0; overflow: hidden; border-radius: 999px; background: rgba(23,63,58,.10); }
+    .workflow-progress-fill { width: 100%; height: 100%; background: linear-gradient(90deg, var(--lab-green), var(--lab-lime), var(--lab-amber)); }
+    .workflow-progress-description { margin: 0; color: var(--lab-muted); font-size: .68rem; line-height: 1.45; }
+    .workflow-start-button { width: 100%; min-height: 44px; padding: .7rem 1rem; }
+
+    .dashboard-empty-state { padding: 3rem 1rem; text-align: center; }
+    .empty-state-icon { display: grid; width: 54px; height: 54px; place-items: center; margin: 0 auto 1rem; border-radius: 1rem; color: #eef2e9; background: linear-gradient(145deg, var(--lab-violet), var(--lab-dark)); box-shadow: 0 12px 26px rgba(54,68,61,.15); font-size: 1.3rem; }
+    .empty-state-title { margin: 0 0 .5rem; font-size: 1.22rem; font-weight: 850; }
+    .empty-state-description { max-width: 520px; margin: 0 auto 1rem; color: var(--lab-muted); font-size: .82rem; line-height: 1.55; }
+
+    @media (max-width: 991.98px) {
+        .lab-dashboard { padding: 2rem 1rem 4rem; }
+        .dashboard-header { padding: 1.4rem; }
+    }
+
+    @media (max-width: 575.98px) {
+        .lab-dashboard { padding: 1rem .75rem 3rem; }
+        .dashboard-header, .dashboard-section, .workflow-panel { padding: 1rem; }
+        .investigation-item { grid-template-columns: 1fr; }
+        .investigation-number { width: 38px; height: 38px; }
+        .investigation-heading-row, .investigation-footer { align-items: flex-start; }
+        .lab-panel { border-radius: 1.25rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+</style>
 
 <main class="lab-dashboard">
-    <div class="container-fluid dashboard-shell px-3 px-lg-4 py-3 py-lg-4">
-
-```
-    <!-- Dashboard header -->
-    <header class="dashboard-header lab-panel mb-3">
-        <div class="row align-items-center g-3">
-
-            <div class="col-xl-7">
-                <div class="d-flex align-items-start gap-3">
-
-                    <div class="dashboard-brand-icon">
-                        <i class="bi bi-cpu"></i>
+    <div class="dashboard-shell">
+        <header class="dashboard-header lab-panel mb-3">
+            <div class="row align-items-center g-3">
+                <div class="col-xl-7">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="dashboard-brand-icon"><i class="bi bi-cpu"></i></div>
+                        <div>
+                            <p class="dashboard-kicker">Basketball Intelligence Lab</p>
+                            <h1 class="dashboard-title">Investigation Dashboard</h1>
+                            <p class="dashboard-description">Develop one basketball principle through topic selection, five clarifying questions, and a complete published lesson.</p>
+                        </div>
                     </div>
-
-                    <div>
-                        <p class="dashboard-kicker">
-                            Basketball Intelligence Lab
-                        </p>
-
-                        <h1 class="dashboard-title">
-                            Investigation Dashboard
-                        </h1>
-
-                        <p class="dashboard-description">
-                            Turn basketball principles into focused topics,
-                            complete lessons, and published knowledge.
-                        </p>
+                </div>
+                <div class="col-xl-5">
+                    <div class="d-flex flex-column flex-sm-row justify-content-xl-end gap-2">
+                        <a href="{% url 'blog:create_topic' %}" class="dashboard-action dashboard-action-primary"><i class="bi bi-plus-circle"></i> Start Investigation</a>
+                        <a href="{% url 'blog:blog_list' %}" class="dashboard-action dashboard-action-secondary"><i class="bi bi-journals"></i> View Blogs</a>
                     </div>
-
                 </div>
             </div>
+        </header>
 
-            <div class="col-xl-5">
-                <div class="d-flex flex-column flex-sm-row justify-content-xl-end gap-2">
+        <section class="row g-3 mb-3">
+            <div class="col-6 col-xl-3"><div class="metric-card"><div class="metric-card-icon"><i class="bi bi-lightbulb"></i></div><div><strong class="metric-card-value">{{ topics|length }}</strong><span class="metric-card-label">Active investigations</span></div></div></div>
+            <div class="col-6 col-xl-3"><div class="metric-card"><div class="metric-card-icon"><i class="bi bi-diagram-3"></i></div><div><strong class="metric-card-value">04</strong><span class="metric-card-label">Workflow stages</span></div></div></div>
+            <div class="col-6 col-xl-3"><div class="metric-card"><div class="metric-card-icon"><i class="bi bi-question-circle"></i></div><div><strong class="metric-card-value">05</strong><span class="metric-card-label">Required questions</span></div></div></div>
+            <div class="col-6 col-xl-3"><div class="metric-card"><div class="metric-card-icon"><i class="bi bi-file-earmark-richtext"></i></div><div><strong class="metric-card-value">01</strong><span class="metric-card-label">Final article output</span></div></div></div>
+        </section>
 
-                    <a
-                        href="{% url 'blog:create_topic' %}"
-                        class="dashboard-action dashboard-action-primary"
-                    >
-                        <i class="bi bi-plus-circle"></i>
-                        Start Investigation
-                    </a>
-
-                    <a
-                        href="{% url 'blog:blog_list' %}"
-                        class="dashboard-action dashboard-action-secondary"
-                    >
-                        <i class="bi bi-journals"></i>
-                        View Blogs
-                    </a>
-
-                </div>
-            </div>
-
-        </div>
-    </header>
-
-    <!-- Dashboard metrics -->
-    <section class="row g-3 mb-3">
-
-        <!-- Investigations metric -->
-        <div class="col-6 col-xl-3">
-            <div class="metric-card metric-card-copper">
-
-                <div class="metric-card-icon">
-                    <i class="bi bi-lightbulb"></i>
-                </div>
-
-                <div class="metric-card-content">
-                    <strong class="metric-card-value">
-                        {{ topics|length }}
-                    </strong>
-
-                    <span class="metric-card-label">
-                        Investigations
-                    </span>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Questions metric -->
-        <div class="col-6 col-xl-3">
-            <div class="metric-card metric-card-teal">
-
-                <div class="metric-card-icon">
-                    <i class="bi bi-question-circle"></i>
-                </div>
-
-                <div class="metric-card-content">
-                    <strong class="metric-card-value">
-                        05
-                    </strong>
-
-                    <span class="metric-card-label">
-                        Required Questions
-                    </span>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Completion metric -->
-        <div class="col-6 col-xl-3">
-            <div class="metric-card metric-card-green">
-
-                <div class="metric-card-icon">
-                    <i class="bi bi-check2-circle"></i>
-                </div>
-
-                <div class="metric-card-content">
-                    <strong class="metric-card-value">
-                        100%
-                    </strong>
-
-                    <span class="metric-card-label">
-                        Completion Goal
-                    </span>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Final message metric -->
-        <div class="col-6 col-xl-3">
-            <div class="metric-card metric-card-amber">
-
-                <div class="metric-card-icon">
-                    <i class="bi bi-bullseye"></i>
-                </div>
-
-                <div class="metric-card-content">
-                    <strong class="metric-card-value">
-                        01
-                    </strong>
-
-                    <span class="metric-card-label">
-                        Final Message
-                    </span>
-                </div>
-
-            </div>
-        </div>
-
-    </section>
-
-    <!-- Main workspace -->
-    <section class="row g-3">
-
-        <!-- Investigation queue -->
-        <div class="col-xl-8">
-
-            <div class="lab-panel dashboard-section">
-
-                <div class="dashboard-section-header">
-                    <div>
-                        <p class="section-kicker">
-                            Active Research
-                        </p>
-
-                        <h2 class="section-title">
-                            Investigation Queue
-                        </h2>
-
-                        <p class="section-description">
-                            Review each lesson and select the strongest
-                            generated topic for deeper development.
-                        </p>
+        <section class="row g-3">
+            <div class="col-lg-8">
+                <div class="lab-panel dashboard-section">
+                    <div class="dashboard-section-header">
+                        <div><p class="section-kicker">Active Research</p><h2 class="section-title">Investigation Queue</h2><p class="section-description">Open a lesson, compare its generated topics, and choose the strongest direction.</p></div>
+                        {% if topics %}<a href="{% url 'blog:create_topic' %}" class="compact-link-button"><i class="bi bi-plus-lg"></i> Add</a>{% endif %}
                     </div>
 
                     {% if topics %}
-                        <a
-                            href="{% url 'blog:create_topic' %}"
-                            class="compact-link-button"
-                        >
-                            <i class="bi bi-plus-lg"></i>
-                            Add
-                        </a>
+                        <div class="investigation-list">
+                            {% for topic in topics %}
+                                <article class="investigation-item">
+                                    <div class="investigation-number">{{ forloop.counter|stringformat:"02d" }}</div>
+                                    <div class="investigation-content">
+                                        <div class="investigation-heading-row">
+                                            <div><span class="investigation-label">Investigation</span><h3 class="investigation-title">{{ topic.name }}</h3></div>
+                                            <span class="investigation-status"><i class="bi bi-circle-fill" style="font-size: 0.35rem;"></i> Ready</span>
+                                        </div>
+                                        <p class="investigation-description">Review the generated topic directions, compare their central principles, and choose the option that best communicates the lesson.</p>
+                                        <div class="investigation-footer">
+                                            <div class="investigation-meta"><span><i class="bi bi-lightbulb me-1"></i>Generated topics available</span></div>
+                                            <a href="{% url 'blog:select_topic' topic.id %}" class="investigation-open-button" aria-label="Open {{ topic.name }}">Open <i class="bi bi-arrow-right"></i></a>
+                                        </div>
+                                    </div>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="dashboard-empty-state">
+                            <div class="empty-state-icon"><i class="bi bi-bezier2"></i></div>
+                            <p class="section-kicker mb-2">No Active Investigations</p>
+                            <h2 class="empty-state-title">Begin with one basketball principle.</h2>
+                            <p class="empty-state-description">Describe the concept or hidden part of the game you want to explain. The system will generate topic directions and guide you through five required questions.</p>
+                            <a href="{% url 'blog:create_topic' %}" class="dashboard-action dashboard-action-primary"><i class="bi bi-plus-circle"></i> Start First Investigation</a>
+                        </div>
                     {% endif %}
                 </div>
-
-                {% if topics %}
-
-                    <div class="investigation-list">
-
-                        {% for topic in topics %}
-
-                            <article class="investigation-item">
-
-                                <div class="investigation-number">
-                                    {{ forloop.counter|stringformat:"02d" }}
-                                </div>
-
-                                <div class="investigation-content">
-
-                                    <div class="investigation-heading-row">
-                                        <div>
-                                            <span class="investigation-label">
-                                                Investigation
-                                            </span>
-
-                                            <h3 class="investigation-title">
-                                                {{ topic.name }}
-                                            </h3>
-                                        </div>
-
-                                        <span class="investigation-status">
-                                            <i
-                                                class="bi bi-circle-fill"
-                                                style="font-size: 0.35rem;"
-                                            ></i>
-                                            Ready
-                                        </span>
-                                    </div>
-
-                                    <p class="investigation-description">
-                                        Review the generated topic directions,
-                                        compare their central principles, and
-                                        choose the option that best communicates
-                                        the lesson.
-                                    </p>
-
-                                    <div class="investigation-footer">
-
-                                        <div class="investigation-meta">
-                                            <span>
-                                                <i class="bi bi-lightbulb"></i>
-                                                Generated topics available
-                                            </span>
-                                        </div>
-
-                                        <a
-                                            href="{% url 'blog:select_topic' topic.id %}"
-                                            class="investigation-open-button"
-                                            aria-label="Open {{ topic.name }}"
-                                        >
-                                            Open
-                                            <i class="bi bi-arrow-right"></i>
-                                        </a>
-
-                                    </div>
-
-                                </div>
-
-                            </article>
-
-                        {% endfor %}
-
-                    </div>
-
-                {% else %}
-
-                    <!-- Empty investigation state -->
-                    <div class="dashboard-empty-state">
-
-                        <div class="empty-state-icon">
-                            <i class="bi bi-bezier2"></i>
-                        </div>
-
-                        <p class="section-kicker mb-2">
-                            No Active Investigations
-                        </p>
-
-                        <h2 class="empty-state-title">
-                            Begin with one basketball principle.
-                        </h2>
-
-                        <p class="empty-state-description">
-                            Describe the concept, problem, or hidden part of
-                            the game you want to explain. The system will
-                            generate topic directions and help you develop
-                            the lesson through five required questions.
-                        </p>
-
-                        <a
-                            href="{% url 'blog:create_topic' %}"
-                            class="dashboard-action dashboard-action-primary"
-                        >
-                            <i class="bi bi-plus-circle"></i>
-                            Start First Investigation
-                        </a>
-
-                    </div>
-
-                {% endif %}
-
             </div>
 
-        </div>
-
-        <!-- Workflow sidebar -->
-        <div class="col-xl-4">
-
-            <aside class="lab-panel workflow-panel">
-
-                <div class="workflow-panel-header">
-
-                    <div>
-                        <p class="section-kicker">
-                            Production System
-                        </p>
-
-                        <h2 class="workflow-panel-title">
-                            Investigation Workflow
-                        </h2>
+            <div class="col-lg-4">
+                <aside class="lab-panel workflow-panel">
+                    <div class="workflow-panel-header">
+                        <div><p class="section-kicker">Production System</p><h2 class="workflow-panel-title">Investigation Workflow</h2></div>
+                        <span class="workflow-system-status"><i class="bi bi-circle-fill" style="font-size: 0.35rem;"></i> Ready</span>
                     </div>
-
-                    <span class="workflow-system-status">
-                        <i
-                            class="bi bi-circle-fill"
-                            style="font-size: 0.35rem;"
-                        ></i>
-                        Ready
-                    </span>
-
-                </div>
-
-                <div class="workflow-list">
-
-                    <!-- Step 1 -->
-                    <div class="workflow-item">
-
-                        <div class="workflow-item-number">
-                            01
-                        </div>
-
-                        <div class="workflow-item-content">
-                            <h3 class="workflow-item-title">
-                                Define the lesson
-                            </h3>
-
-                            <p class="workflow-item-description">
-                                Enter the basketball concept, problem, or
-                                principle you want to explain.
-                            </p>
-                        </div>
-
-                        <div class="workflow-item-icon">
-                            <i class="bi bi-pencil-square"></i>
-                        </div>
-
+                    <div class="workflow-list">
+                        <div class="workflow-item"><div class="workflow-item-number">01</div><div class="workflow-item-content"><h3 class="workflow-item-title">Define the lesson</h3><p class="workflow-item-description">Enter the basketball concept, problem, or principle.</p></div><div class="workflow-item-icon"><i class="bi bi-pencil-square"></i></div></div>
+                        <div class="workflow-item"><div class="workflow-item-number">02</div><div class="workflow-item-content"><h3 class="workflow-item-title">Generate topics</h3><p class="workflow-item-description">Discover focused directions for developing the lesson.</p></div><div class="workflow-item-icon"><i class="bi bi-stars"></i></div></div>
+                        <div class="workflow-item"><div class="workflow-item-number">03</div><div class="workflow-item-content"><h3 class="workflow-item-title">Complete five questions</h3><p class="workflow-item-description">Fill the knowledge gaps needed for a complete message.</p></div><div class="workflow-item-icon"><i class="bi bi-ui-checks"></i></div></div>
+                        <div class="workflow-item"><div class="workflow-item-number">04</div><div class="workflow-item-content"><h3 class="workflow-item-title">Generate the blog</h3><p class="workflow-item-description">Turn the selected topic and answers into an article.</p></div><div class="workflow-item-icon"><i class="bi bi-file-earmark-richtext"></i></div></div>
                     </div>
-
-                    <!-- Step 2 -->
-                    <div class="workflow-item">
-
-                        <div class="workflow-item-number">
-                            02
-                        </div>
-
-                        <div class="workflow-item-content">
-                            <h3 class="workflow-item-title">
-                                Generate topics
-                            </h3>
-
-                            <p class="workflow-item-description">
-                                Use AI to discover different directions for
-                                developing the lesson.
-                            </p>
-                        </div>
-
-                        <div class="workflow-item-icon">
-                            <i class="bi bi-stars"></i>
-                        </div>
-
+                    <div class="workflow-progress-panel">
+                        <div class="workflow-progress-heading"><span>Workflow Standard</span><strong>4 Stages</strong></div>
+                        <div class="workflow-progress-track"><div class="workflow-progress-fill"></div></div>
+                        <p class="workflow-progress-description">Complete every stage to move from an initial principle to a finished basketball article.</p>
                     </div>
-
-                    <!-- Step 3 -->
-                    <div class="workflow-item">
-
-                        <div class="workflow-item-number">
-                            03
-                        </div>
-
-                        <div class="workflow-item-content">
-                            <h3 class="workflow-item-title">
-                                Complete five questions
-                            </h3>
-
-                            <p class="workflow-item-description">
-                                Fill the missing knowledge needed to create
-                                a complete message.
-                            </p>
-                        </div>
-
-                        <div class="workflow-item-icon">
-                            <i class="bi bi-ui-checks"></i>
-                        </div>
-
-                    </div>
-
-                    <!-- Step 4 -->
-                    <div class="workflow-item">
-
-                        <div class="workflow-item-number">
-                            04
-                        </div>
-
-                        <div class="workflow-item-content">
-                            <h3 class="workflow-item-title">
-                                Generate the blog
-                            </h3>
-
-                            <p class="workflow-item-description">
-                                Turn the selected topic and completed answers
-                                into a published article.
-                            </p>
-                        </div>
-
-                        <div class="workflow-item-icon">
-                            <i class="bi bi-file-earmark-richtext"></i>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="workflow-progress-panel">
-
-                    <div class="workflow-progress-heading">
-                        <span>Workflow Standard</span>
-                        <strong>4 Stages</strong>
-                    </div>
-
-                    <div class="workflow-progress-track">
-                        <div class="workflow-progress-fill"></div>
-                    </div>
-
-                    <p class="workflow-progress-description">
-                        Complete every stage to move from an initial lesson
-                        to a finished basketball article.
-                    </p>
-
-                </div>
-
-                <a
-                    href="{% url 'blog:create_topic' %}"
-                    class="workflow-start-button"
-                >
-                    <i class="bi bi-plus-lg"></i>
-                    New Investigation
-                </a>
-
-            </aside>
-
-        </div>
-
-    </section>
-
-</div>
-```
-
+                    <a href="{% url 'blog:create_topic' %}" class="workflow-start-button"><i class="bi bi-plus-lg"></i> New Investigation</a>
+                </aside>
+            </div>
+        </section>
+    </div>
 </main>
-
 {% endblock %}
