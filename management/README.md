@@ -47,7 +47,7 @@ Full Court Press runs a full rotation of tools, each playing a specific position
 ---
 
 ## Program Screenshots 
-![App Dashboard](../screenshots/appDashboard.jpg)
+![App Dashboard](../screenshots/appDashboard.jpeg)
 ![App Post Form](../screenshots/app-smpostform.jpg)
 ![Blog Dashboard](../screenshots/blogDashboard.jpg)
 ![Blog Topics](../screenshots/blogTopics.jpg)
