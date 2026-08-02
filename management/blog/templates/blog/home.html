@@ -2,24 +2,23 @@
 
 {% block title %}Basketball Intelligence Lab{% endblock %}
 
-{% block nav %}
-    <div class="d-flex align-items-center gap-2">
-        <a
-            href="{% url 'blog:create_topic' %}"
-            class="btn dashboard-btn dashboard-btn-primary"
-        >
-            <i class="bi bi-plus-lg"></i>
-            New Investigation
-        </a>
+{% block nav %} <div class="d-flex align-items-center gap-2"> <a
+         href="{% url 'blog:create_topic' %}"
+         class="btn dashboard-btn dashboard-btn-primary"
+     > <i class="bi bi-plus-lg"></i>
+New Investigation </a>
 
-        <a
-            href="{% url 'blog:blog_list' %}"
-            class="btn dashboard-btn dashboard-btn-secondary"
-        >
-            <i class="bi bi-collection"></i>
-            Library
-        </a>
-    </div>
+
+    <a
+        href="{% url 'blog:blog_list' %}"
+        class="btn dashboard-btn dashboard-btn-secondary"
+    >
+        <i class="bi bi-collection"></i>
+        Library
+    </a>
+</div>
+
+
 {% endblock %}
 
 {% block content %}
@@ -27,135 +26,456 @@
 <main class="lab-dashboard">
     <div class="container-fluid dashboard-shell px-3 px-lg-4 py-3 py-lg-4">
 
-        <!-- Compact top bar -->
-        <header class="dashboard-header lab-panel mb-3">
-            <div class="row align-items-center g-3">
+```
+    <!-- Dashboard header -->
+    <header class="dashboard-header lab-panel mb-3">
+        <div class="row align-items-center g-3">
 
-                <div class="col-xl-7">
-                    <div class="d-flex align-items-start gap-3">
+            <div class="col-xl-7">
+                <div class="d-flex align-items-start gap-3">
 
-                        <div class="dashboard-brand-icon">
-                            <i class="bi bi-cpu"></i>
-                        </div>
-
-                        <div>
-                            <p class="dashboard-kicker">
-                                Basketball Intelligence Lab
-                            </p>
-
-                            <h1 class="dashboard-title">
-                                Investigation Dashboard
-                            </h1>
-
-                            <p class="dashboard-description">
-                                Turn basketball principles into focused topics,
-                                complete lessons, and published knowledge.
-                            </p>
-                        </div>
-
+                    <div class="dashboard-brand-icon">
+                        <i class="bi bi-cpu"></i>
                     </div>
+
+                    <div>
+                        <p class="dashboard-kicker">
+                            Basketball Intelligence Lab
+                        </p>
+
+                        <h1 class="dashboard-title">
+                            Investigation Dashboard
+                        </h1>
+
+                        <p class="dashboard-description">
+                            Turn basketball principles into focused topics,
+                            complete lessons, and published knowledge.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-xl-5">
+                <div class="d-flex flex-column flex-sm-row justify-content-xl-end gap-2">
+
+                    <a
+                        href="{% url 'blog:create_topic' %}"
+                        class="dashboard-action dashboard-action-primary"
+                    >
+                        <i class="bi bi-plus-circle"></i>
+                        Start Investigation
+                    </a>
+
+                    <a
+                        href="{% url 'blog:blog_list' %}"
+                        class="dashboard-action dashboard-action-secondary"
+                    >
+                        <i class="bi bi-journals"></i>
+                        View Blogs
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Dashboard metrics -->
+    <section class="row g-3 mb-3">
+
+        <!-- Investigations metric -->
+        <div class="col-6 col-xl-3">
+            <div class="metric-card metric-card-copper">
+
+                <div class="metric-card-icon">
+                    <i class="bi bi-lightbulb"></i>
                 </div>
 
-                <div class="col-xl-5">
-                    <div class="d-flex flex-column flex-sm-row justify-content-xl-end gap-2">
+                <div class="metric-card-content">
+                    <strong class="metric-card-value">
+                        {{ topics|length }}
+                    </strong>
+
+                    <span class="metric-card-label">
+                        Investigations
+                    </span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Questions metric -->
+        <div class="col-6 col-xl-3">
+            <div class="metric-card metric-card-teal">
+
+                <div class="metric-card-icon">
+                    <i class="bi bi-question-circle"></i>
+                </div>
+
+                <div class="metric-card-content">
+                    <strong class="metric-card-value">
+                        05
+                    </strong>
+
+                    <span class="metric-card-label">
+                        Required Questions
+                    </span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Completion metric -->
+        <div class="col-6 col-xl-3">
+            <div class="metric-card metric-card-green">
+
+                <div class="metric-card-icon">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+
+                <div class="metric-card-content">
+                    <strong class="metric-card-value">
+                        100%
+                    </strong>
+
+                    <span class="metric-card-label">
+                        Completion Goal
+                    </span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Final message metric -->
+        <div class="col-6 col-xl-3">
+            <div class="metric-card metric-card-amber">
+
+                <div class="metric-card-icon">
+                    <i class="bi bi-bullseye"></i>
+                </div>
+
+                <div class="metric-card-content">
+                    <strong class="metric-card-value">
+                        01
+                    </strong>
+
+                    <span class="metric-card-label">
+                        Final Message
+                    </span>
+                </div>
+
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Main workspace -->
+    <section class="row g-3">
+
+        <!-- Investigation queue -->
+        <div class="col-xl-8">
+
+            <div class="lab-panel dashboard-section">
+
+                <div class="dashboard-section-header">
+                    <div>
+                        <p class="section-kicker">
+                            Active Research
+                        </p>
+
+                        <h2 class="section-title">
+                            Investigation Queue
+                        </h2>
+
+                        <p class="section-description">
+                            Review each lesson and select the strongest
+                            generated topic for deeper development.
+                        </p>
+                    </div>
+
+                    {% if topics %}
+                        <a
+                            href="{% url 'blog:create_topic' %}"
+                            class="compact-link-button"
+                        >
+                            <i class="bi bi-plus-lg"></i>
+                            Add
+                        </a>
+                    {% endif %}
+                </div>
+
+                {% if topics %}
+
+                    <div class="investigation-list">
+
+                        {% for topic in topics %}
+
+                            <article class="investigation-item">
+
+                                <div class="investigation-number">
+                                    {{ forloop.counter|stringformat:"02d" }}
+                                </div>
+
+                                <div class="investigation-content">
+
+                                    <div class="investigation-heading-row">
+                                        <div>
+                                            <span class="investigation-label">
+                                                Investigation
+                                            </span>
+
+                                            <h3 class="investigation-title">
+                                                {{ topic.name }}
+                                            </h3>
+                                        </div>
+
+                                        <span class="investigation-status">
+                                            <i
+                                                class="bi bi-circle-fill"
+                                                style="font-size: 0.35rem;"
+                                            ></i>
+                                            Ready
+                                        </span>
+                                    </div>
+
+                                    <p class="investigation-description">
+                                        Review the generated topic directions,
+                                        compare their central principles, and
+                                        choose the option that best communicates
+                                        the lesson.
+                                    </p>
+
+                                    <div class="investigation-footer">
+
+                                        <div class="investigation-meta">
+                                            <span>
+                                                <i class="bi bi-lightbulb"></i>
+                                                Generated topics available
+                                            </span>
+                                        </div>
+
+                                        <a
+                                            href="{% url 'blog:select_topic' topic.id %}"
+                                            class="investigation-open-button"
+                                            aria-label="Open {{ topic.name }}"
+                                        >
+                                            Open
+                                            <i class="bi bi-arrow-right"></i>
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            </article>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <!-- Empty investigation state -->
+                    <div class="dashboard-empty-state">
+
+                        <div class="empty-state-icon">
+                            <i class="bi bi-bezier2"></i>
+                        </div>
+
+                        <p class="section-kicker mb-2">
+                            No Active Investigations
+                        </p>
+
+                        <h2 class="empty-state-title">
+                            Begin with one basketball principle.
+                        </h2>
+
+                        <p class="empty-state-description">
+                            Describe the concept, problem, or hidden part of
+                            the game you want to explain. The system will
+                            generate topic directions and help you develop
+                            the lesson through five required questions.
+                        </p>
 
                         <a
                             href="{% url 'blog:create_topic' %}"
                             class="dashboard-action dashboard-action-primary"
                         >
                             <i class="bi bi-plus-circle"></i>
-                            Start Investigation
-                        </a>
-
-                        <a
-                            href="{% url 'blog:blog_list' %}"
-                            class="dashboard-action dashboard-action-secondary"
-                        >
-                            <i class="bi bi-journals"></i>
-                            View Blogs
+                            Start First Investigation
                         </a>
 
                     </div>
-                </div>
+
+                {% endif %}
 
             </div>
-        </header>
 
-        <!-- Compact metrics -->
-        <section class="row g-3 mb-3">
+        </div>
 
-            {% include "blog/partials/_metric_card.html" with icon="bi-lightbulb" value=topics|length label="Investigations" accent="copper" %}
+        <!-- Workflow sidebar -->
+        <div class="col-xl-4">
 
-            {% include "blog/partials/_metric_card.html" with icon="bi-question-circle" value="05" label="Required Questions" accent="teal" %}
+            <aside class="lab-panel workflow-panel">
 
-            {% include "blog/partials/_metric_card.html" with icon="bi-check2-circle" value="100%" label="Completion Goal" accent="green" %}
+                <div class="workflow-panel-header">
 
-            {% include "blog/partials/_metric_card.html" with icon="bi-bullseye" value="01" label="Final Message" accent="amber" %}
+                    <div>
+                        <p class="section-kicker">
+                            Production System
+                        </p>
 
-        </section>
+                        <h2 class="workflow-panel-title">
+                            Investigation Workflow
+                        </h2>
+                    </div>
 
-        <!-- Main workspace -->
-        <section class="row g-3">
+                    <span class="workflow-system-status">
+                        <i
+                            class="bi bi-circle-fill"
+                            style="font-size: 0.35rem;"
+                        ></i>
+                        Ready
+                    </span>
 
-            <!-- Investigation queue -->
-            <div class="col-xl-8">
+                </div>
 
-                <div class="lab-panel dashboard-section">
+                <div class="workflow-list">
 
-                    <div class="dashboard-section-header">
-                        <div>
-                            <p class="section-kicker">
-                                Active Research
+                    <!-- Step 1 -->
+                    <div class="workflow-item">
+
+                        <div class="workflow-item-number">
+                            01
+                        </div>
+
+                        <div class="workflow-item-content">
+                            <h3 class="workflow-item-title">
+                                Define the lesson
+                            </h3>
+
+                            <p class="workflow-item-description">
+                                Enter the basketball concept, problem, or
+                                principle you want to explain.
                             </p>
-
-                            <h2 class="section-title">
-                                Investigation Queue
-                            </h2>
                         </div>
 
-                        {% if topics %}
-                            <a
-                                href="{% url 'blog:create_topic' %}"
-                                class="compact-link-button"
-                            >
-                                <i class="bi bi-plus-lg"></i>
-                                Add
-                            </a>
-                        {% endif %}
+                        <div class="workflow-item-icon">
+                            <i class="bi bi-pencil-square"></i>
+                        </div>
+
                     </div>
 
-                    {% if topics %}
+                    <!-- Step 2 -->
+                    <div class="workflow-item">
 
-                        <div class="investigation-list">
-
-                            {% for topic in topics %}
-
-                                {% include "blog/partials/_topic_card.html" with topic=topic number=forloop.counter %}
-
-                            {% endfor %}
-
+                        <div class="workflow-item-number">
+                            02
                         </div>
 
-                    {% else %}
+                        <div class="workflow-item-content">
+                            <h3 class="workflow-item-title">
+                                Generate topics
+                            </h3>
 
-                        {% include "blog/partials/_empty_state.html" %}
+                            <p class="workflow-item-description">
+                                Use AI to discover different directions for
+                                developing the lesson.
+                            </p>
+                        </div>
 
-                    {% endif %}
+                        <div class="workflow-item-icon">
+                            <i class="bi bi-stars"></i>
+                        </div>
+
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="workflow-item">
+
+                        <div class="workflow-item-number">
+                            03
+                        </div>
+
+                        <div class="workflow-item-content">
+                            <h3 class="workflow-item-title">
+                                Complete five questions
+                            </h3>
+
+                            <p class="workflow-item-description">
+                                Fill the missing knowledge needed to create
+                                a complete message.
+                            </p>
+                        </div>
+
+                        <div class="workflow-item-icon">
+                            <i class="bi bi-ui-checks"></i>
+                        </div>
+
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="workflow-item">
+
+                        <div class="workflow-item-number">
+                            04
+                        </div>
+
+                        <div class="workflow-item-content">
+                            <h3 class="workflow-item-title">
+                                Generate the blog
+                            </h3>
+
+                            <p class="workflow-item-description">
+                                Turn the selected topic and completed answers
+                                into a published article.
+                            </p>
+                        </div>
+
+                        <div class="workflow-item-icon">
+                            <i class="bi bi-file-earmark-richtext"></i>
+                        </div>
+
+                    </div>
 
                 </div>
 
-            </div>
+                <div class="workflow-progress-panel">
 
-            <!-- Workflow sidebar -->
-            <div class="col-xl-4">
+                    <div class="workflow-progress-heading">
+                        <span>Workflow Standard</span>
+                        <strong>4 Stages</strong>
+                    </div>
 
-                {% include "blog/partials/_workflow.html" %}
+                    <div class="workflow-progress-track">
+                        <div class="workflow-progress-fill"></div>
+                    </div>
 
-            </div>
+                    <p class="workflow-progress-description">
+                        Complete every stage to move from an initial lesson
+                        to a finished basketball article.
+                    </p>
 
-        </section>
+                </div>
 
-    </div>
+                <a
+                    href="{% url 'blog:create_topic' %}"
+                    class="workflow-start-button"
+                >
+                    <i class="bi bi-plus-lg"></i>
+                    New Investigation
+                </a>
+
+            </aside>
+
+        </div>
+
+    </section>
+
+</div>
+```
+
 </main>
 
 {% endblock %}

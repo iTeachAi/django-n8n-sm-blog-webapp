@@ -59,7 +59,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'shootinganalysis.wsgi.application'
+WSGI_APPLICATION = 'management.wsgi.application'
 
 
 # Database
