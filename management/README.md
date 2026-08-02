@@ -47,11 +47,11 @@ Full Court Press runs a full rotation of tools, each playing a specific position
 ---
 
 ## Program Screenshots 
-![App Dashboard](management/screenshots/appDashboard.jpg)
-![App Post Form](management/screenshots/app-smpostform.jpg)
-![Blog Dashboard](management/screenshots/blogDashboard.jpg)
-![Blog Topics](management/screenshots/blogTopics.jpg)
-![Blog Questions](management/screenshots/blogquestions.jpg)
+![App Dashboard](../screenshots/appDashboard.jpg)
+![App Post Form](../screenshots/app-smpostform.jpg)
+![Blog Dashboard](../screenshots/blogDashboard.jpg)
+![Blog Topics](../screenshots/blogTopics.jpg)
+![Blog Questions](../screenshots/blogquestions.jpg)
 
 ## 🔮 Next Season (Future Upgrades)
 
