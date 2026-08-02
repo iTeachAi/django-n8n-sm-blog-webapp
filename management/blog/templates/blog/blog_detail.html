@@ -807,14 +807,15 @@
                 </div>
 
                 <div class="d-flex flex-column flex-sm-row flex-shrink-0 gap-2">
-                    <a
-                        href="{% url 'blog:create_topic' %}"
-                        class="primary-action"
-                    >
-                        <i class="bi bi-plus-circle"></i>
-                        Create New Topic
-                    </a>
-
+                    {% if admin %}
+                        <a
+                            href="{% url 'blog:create_topic' %}"
+                            class="primary-action"
+                        >
+                            <i class="bi bi-plus-circle"></i>
+                            Create New Topic
+                        </a>
+                    {% endif %}
                     <a
                         href="{% url 'blog:blog_list' %}"
                         class="secondary-action"

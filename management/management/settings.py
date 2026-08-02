@@ -117,4 +117,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = BASE_DIR / "uploads"
 MEDIA_URL = '/statsheet-image/'
 
-N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL")
+N8N_WEBHOOK_URL = os.getenv("N8N_TEST_WEBHOOK_URL")

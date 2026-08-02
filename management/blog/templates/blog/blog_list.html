@@ -1085,10 +1085,10 @@
     <div class="container-fluid page-shell px-3 px-md-4 px-xl-5 py-4 py-lg-5">
 
 ```
-    <!-- Page hero -->
+{% if admin %}
+<!-- Page hero -->
     <section class="chrome-panel library-hero reveal">
         <div class="row align-items-center g-4 g-lg-5">
-
             <div class="col-lg-8">
                 <span class="page-kicker">
                     <i class="bi bi-collection-play"></i>
@@ -1126,26 +1126,26 @@
                     </a>
                 </div>
             </div>
-
             <div class="col-lg-4">
                 <div class="chrome-panel metric-panel">
                     <span class="metric-label">
                         Available Lessons
                     </span>
-
+                    
                     <strong class="metric-value">
                         {{ blogs|length }}
                     </strong>
-
+                    
                     <p class="metric-copy">
                         Published basketball articles ready to study,
                         challenge, and apply.
                     </p>
                 </div>
             </div>
-
+            
         </div>
     </section>
+{% endif %}
 
     {% if blogs %}
 
